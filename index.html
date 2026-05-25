@@ -21,39 +21,40 @@
       --success:   #62D963; --warning: #FFE359; --danger: #FF6F42;
 
       /* Surfaces */
-      --bg: #FAFAF7; --bg-card: #FFFFFF; --border: #EAEAE6;
+      --bg: #F6F7FB; --bg-card: rgba(255,255,255,0.72); --border: #E8E4DD;
 
       /* Text */
       --text: #1A1A1A; --text-m: #66665E; --text-l: #AAAAAA;
 
       /* Elevation */
-      --shadow:    0 2px 10px rgba(26,26,26,.06);
-      --shadow-md: 0 6px 28px rgba(26,26,26,.11);
-      --shadow-lg: 0 22px 64px rgba(26,26,26,.20);
+      --shadow:    0 2px 12px rgba(26,26,26,.06);
+      --shadow-md: 0 8px 32px rgba(26,26,26,.12);
+      --shadow-lg: 0 24px 72px rgba(26,26,26,.22);
 
       /* Geometry */
-      --r: 10px; --rl: 16px;
+      --r: 12px; --rl: 22px;
     }
 
     [data-theme="dark"] {
-      --bg: #111110; --bg-card: #1C1C1A; --border: #2E2E2A;
+      --bg: #111110; --bg-card: rgba(28,28,26,0.82); --border: #2E2E2A;
       --text: #F5F5F0; --text-m: #88887E; --text-l: #50504A;
       --primary-l: #2C1510;
-      --shadow: 0 2px 10px rgba(0,0,0,.4); --shadow-md: 0 6px 28px rgba(0,0,0,.5);
+      --shadow: 0 2px 12px rgba(0,0,0,.4); --shadow-md: 0 8px 32px rgba(0,0,0,.55);
     }
 
     * { margin:0; padding:0; box-sizing:border-box }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
                    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-      background: var(--bg); color: var(--text);
+      background: #F0F2FA; color: var(--text);
       min-height: 100vh; line-height: 1.6;
       transition: background .2s, color .2s;
     }
 
     /* ── Header ─────────────────────────────────────── */
     .header {
-      background: #1A1A1A; border-bottom: none;
+      background: linear-gradient(180deg, #191919, #111111);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       padding: 0 28px; height: 68px;
       display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 100;
@@ -88,7 +89,8 @@
 
     /* ── Nav ────────────────────────────────────────── */
     .nav {
-      background: #1A1A1A; border-bottom: none;
+      background: linear-gradient(180deg, #111111, #0e0e0e);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
       display: flex; padding: 8px 20px; gap: 4px;
       overflow-x: auto; scrollbar-width: none;
     }
@@ -101,10 +103,10 @@
       display: flex; align-items: center; gap: 6px; user-select: none;
     }
     .nav-item:hover { color:#fff; background: rgba(255,255,255,.1) }
-    .nav-item.active { background: #FF8DBB; color: #fff }
+    .nav-item.active { background: #FF8DBB; color: #fff; box-shadow: 0 2px 12px rgba(255,141,187,0.35) }
 
     /* ── Layout ─────────────────────────────────────── */
-    .main { max-width:1380px; margin:0 auto; padding:28px }
+    .main { max-width:1380px; margin:0 auto; padding:28px; position:relative; z-index:1 }
     .tab { display:none } .tab.active { display:block }
     .two-col { display:grid; grid-template-columns:1fr 420px; gap:22px; align-items:start }
     .section-title {
@@ -114,8 +116,14 @@
 
     /* ── Cards ──────────────────────────────────────── */
     .card {
-      background: var(--bg-card); border: none;
-      border-radius: var(--rl); padding: 26px; box-shadow: var(--shadow-md);
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 22px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.08);
+      padding: 28px;
+      position: relative; z-index: 1;
     }
 
     /* ── Form ───────────────────────────────────────── */
@@ -128,15 +136,17 @@
     }
     input[type="text"], input[type="url"], input[type="date"],
     input[type="password"], select, textarea {
-      padding: 10px 14px; border: 2px solid var(--border); border-radius: var(--r);
-      background: var(--bg); color: var(--text); font-size: 14px;
+      padding: 10px 14px; border-radius: var(--r);
+      background: rgba(255,255,255,0.6);
+      border: 1.5px solid rgba(220,215,210,0.8);
+      color: var(--text); font-size: 14px;
       font-family: inherit; font-weight: 500;
       transition: border-color .15s, box-shadow .15s; width: 100%;
     }
     input[type="text"]:focus, input[type="url"]:focus, input[type="date"]:focus,
     input[type="password"]:focus, select:focus, textarea:focus {
-      outline: none; border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(74,144,217,.16);
+      outline: none; border-color: #FF8DBB;
+      box-shadow: 0 0 0 3px rgba(255,141,187,.18);
     }
     textarea { resize:vertical; min-height:110px }
 
@@ -147,8 +157,14 @@
       font-size: 13px; font-weight: 700; cursor: pointer;
       transition: all .18s; border: none; white-space: nowrap; font-family: inherit;
     }
-    .btn-primary { background: #FF6F42; color: #fff }
-    .btn-primary:hover { background: #e85e30; transform: translateY(-2px) }
+    .btn-primary {
+      background: linear-gradient(135deg, #FF8DBB, #FF6F42); color: #fff;
+      box-shadow: 0 4px 16px rgba(255,111,66,0.28);
+    }
+    .btn-primary:hover {
+      opacity: 0.92; transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(255,111,66,0.40);
+    }
     .btn-secondary {
       background: var(--bg-card); color: var(--text);
       border: 2px solid var(--border);
@@ -168,18 +184,41 @@
     .ts-selected-label { font-size:12px; color:#FF6F42; font-weight:700 }
     .ts-pills {
       display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-      padding: 10px 12px; border: 2px solid var(--border); border-radius: var(--r);
-      background: var(--bg); min-height: 50px; cursor: default; transition: border-color .15s;
+      padding: 10px 12px; border-radius: var(--r);
+      background: var(--bg);
+      border: 2px solid var(--border);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      min-height: 50px; cursor: default; transition: border-color .15s;
     }
     .ts-pills.required-err { border-color: var(--danger) }
     .ts-pill {
-      padding: 5px 14px; border-radius: 99px; font-size: 12px; font-weight: 700;
-      border: 2px solid var(--border); background: var(--bg-card); color: var(--text-m);
-      cursor: pointer; transition: all .15s; white-space: nowrap; user-select: none;
+      padding: 5px 14px; font-size: 12px; font-weight: 700;
+      cursor: pointer; white-space: nowrap; user-select: none;
       display: flex; align-items: center; gap: 3px;
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 999px;
+      box-shadow: 0 2px 12px rgba(255,141,187,0.15), inset 0 1px 0 rgba(255,255,255,0.95);
+      color: var(--text);
+      transition: all 0.18s ease;
     }
-    .ts-pill:hover { border-color:#FF6F42; color:#FF6F42 }
-    .ts-pill.active { background:#FF6F42; color:#fff; border-color:#FF6F42 }
+    .ts-pill:hover {
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 4px 18px rgba(255,141,187,0.25), inset 0 1px 0 rgba(255,255,255,1);
+      color: #FF8DBB;
+      border-color: rgba(255,141,187,0.3);
+      transform: translateY(-1px);
+    }
+    .ts-pill.active {
+      background: rgba(255,141,187,0.18);
+      border-color: rgba(255,141,187,0.4);
+      color: #FF8DBB;
+      box-shadow: 0 4px 18px rgba(255,141,187,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+      font-weight: 700;
+    }
     .ts-pill.active .ts-x { color: rgba(255,255,255,.6) }
     .ts-x { font-size:15px; line-height:1; cursor:pointer; margin-left:2px }
     .ts-x:hover { color: var(--danger)!important }
@@ -189,7 +228,7 @@
       display:flex; align-items:center; justify-content:center;
       transition:all .15s; flex-shrink:0; padding:0; line-height:1;
     }
-    .ts-add-btn:hover { border-color:#FF6F42; color:#FF6F42; background:#fff2ed }
+    .ts-add-btn:hover { border-color:#FF8DBB; color:#FF8DBB; background:rgba(255,141,187,0.08) }
     .ts-add-row {
       display:flex; gap:6px; align-items:center;
       padding:6px 10px 8px; border-top:1px solid var(--border); margin-top:4px;
@@ -198,12 +237,12 @@
       flex:1; padding:6px 10px; font-size:13px; border-radius:var(--r);
       border:2px solid var(--border); background:var(--bg); color:var(--text);
     }
-    .ts-add-row input:focus { outline:none; border-color:var(--blue) }
+    .ts-add-row input:focus { outline:none; border-color:#FF8DBB; box-shadow:0 0 0 3px rgba(255,141,187,.18) }
     .ts-placeholder { font-size:13px; color:var(--text-l) }
 
     /* ── Image upload ────────────────────────────────── */
     .img-zone {
-      border: 2.5px dashed #FFE359; border-radius: var(--rl);
+      border: 2.5px dashed rgba(255,141,187,0.5); border-radius: var(--rl);
       transition: all .22s; position: relative; overflow: hidden;
     }
     .img-zone.empty {
@@ -211,8 +250,8 @@
       color: var(--text-l); font-size: 13px; line-height: 1.85; font-weight: 600;
     }
     .img-zone.empty:hover, .img-zone.drag-over {
-      border-color: #FF6F42; color: #FF6F42;
-      background: #fff2ed; transform: scale(1.015);
+      border-color: #FF8DBB; color: #FF8DBB;
+      background: rgba(255,141,187,0.06); transform: scale(1.015);
     }
     .img-zone.empty input { position:absolute; inset:0; opacity:0; cursor:pointer }
     .img-zone.has-img { border-style:solid; border-color:var(--border) }
@@ -230,57 +269,88 @@
 
     /* ── Tags ───────────────────────────────────────── */
     .tag {
-      display:inline-flex; align-items:center; padding:4px 11px;
-      border-radius:99px; font-size:11.5px; font-weight:700; gap:4px;
+      display:inline-flex; align-items:center; gap:4px;
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.85);
+      border-radius: 999px;
+      box-shadow: 0 2px 10px rgba(255,141,187,0.12), inset 0 1px 0 rgba(255,255,255,0.9);
+      color: var(--text);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 12px;
     }
-    .tag-default { background:#FFF8CC; color:#806000 }
-    .tag-blue    { background:#E5F3FF; color:#0060C0 }
-    .tag-green   { background:#E8FBE8; color:#1A8020 }
-    .tag-yellow  { background:#FFF8CC; color:#806000 }
-    .tag-red     { background:#FFE8E8; color:#C02020 }
-    .tag-purple  { background:#FFE8F3; color:#C0174F }
+    .tag-default { background: rgba(255,227,89,0.15); color:#806000; border-color:rgba(255,227,89,0.3) }
+    .tag-blue    { background: rgba(89,172,255,0.12);  color:#0060C0; border-color:rgba(89,172,255,0.25) }
+    .tag-green   { background: rgba(98,217,99,0.12);   color:#1A8020; border-color:rgba(98,217,99,0.25) }
+    .tag-yellow  { background: rgba(255,227,89,0.18);  color:#806000; border-color:rgba(255,227,89,0.35) }
+    .tag-red     { background: rgba(255,111,66,0.12);  color:#C02020; border-color:rgba(255,111,66,0.25) }
+    .tag-purple  { background: rgba(255,141,187,0.12); color:#C0174F; border-color:rgba(255,141,187,0.25) }
 
     /* ── Marketing intensity badges ─────────────────── */
     .mint {
       display:inline-flex; align-items:center; gap:4px;
-      padding:4px 11px; border-radius:99px; font-size:11.5px; font-weight:700;
+      padding:4px 11px; border-radius:999px; font-size:11.5px; font-weight:700;
     }
-    .m1 { background:#E8FBE8; color:#1A8020 }
-    .m2 { background:#E5F3FF; color:#0060C0 }
-    .m3 { background:#FFF8CC; color:#806000 }
-    .m4 { background:#FFF2E8; color:#C04010 }
-    .m5 { background:#FFE8F3; color:#C0174F }
+    .m1 { background:rgba(98,217,99,0.12);  color:#1A8020; border:1px solid rgba(98,217,99,0.25);  box-shadow:0 2px 8px rgba(98,217,99,0.15) }
+    .m2 { background:rgba(89,172,255,0.12); color:#0060C0; border:1px solid rgba(89,172,255,0.25); box-shadow:0 2px 8px rgba(89,172,255,0.15) }
+    .m3 { background:rgba(255,227,89,0.18); color:#806000; border:1px solid rgba(255,227,89,0.35); box-shadow:0 2px 8px rgba(255,227,89,0.15) }
+    .m4 { background:rgba(255,111,66,0.12); color:#C04010; border:1px solid rgba(255,111,66,0.25); box-shadow:0 2px 8px rgba(255,111,66,0.15) }
+    .m5 { background:rgba(255,141,187,0.15);color:#C0174F; border:1px solid rgba(255,141,187,0.3);  box-shadow:0 2px 8px rgba(255,141,187,0.18) }
 
     /* ── Stats ──────────────────────────────────────── */
     .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px }
     .stat-card {
-      background:var(--bg-card); border:none; border-radius:var(--rl);
-      padding:20px; text-align:center; box-shadow:var(--shadow-md);
+      background: rgba(255,255,255,0.60);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+      padding:20px; text-align:center;
+      position: relative; z-index: 1;
     }
     .stat-val { font-size:30px; font-weight:800; color:#FF6F42; line-height:1 }
     .stat-label { font-size:12px; color:var(--text-m); margin-top:6px; font-weight:600 }
 
     /* ── Filter bar ─────────────────────────────────── */
     .filter-bar {
-      background:var(--bg-card); border:none; border-radius:var(--rl);
+      background:var(--bg-card);
+      border: 1.5px solid rgba(255,255,255,0.85);
+      border-radius:var(--rl);
       padding:14px 18px; margin-bottom:18px;
       display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-      box-shadow:var(--shadow);
+      box-shadow:var(--shadow); backdrop-filter: blur(12px);
+      position: relative; z-index: 1;
     }
     .filter-bar input, .filter-bar select {
       width:auto; flex:1; min-width:110px; padding:7px 12px;
-      font-size:13px; border-radius:99px;
+      font-size:13px; border-radius:999px;
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.85);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .filter-bar label { text-transform:none; font-size:13px; font-weight:600; color:var(--text-m); white-space:nowrap }
 
     /* ── Content grid ───────────────────────────────── */
     .content-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px }
     .content-card {
-      background:var(--bg-card); border:none; border-radius:var(--rl);
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
       padding:20px; cursor:pointer; transition:all .22s;
-      position:relative; overflow:hidden; box-shadow:var(--shadow);
+      position:relative; overflow:hidden; z-index: 1;
     }
-    .content-card:hover { box-shadow:var(--shadow-md); transform:translateY(-5px) }
+    .content-card:hover {
+      box-shadow:var(--shadow-md); transform:translateY(-5px);
+      border-color: rgba(255,141,187,0.35);
+    }
     .content-card::before {
       content:''; position:absolute; top:0; left:0; right:0; height:4px;
       background: #FF8DBB; opacity:0; transition:opacity .22s;
@@ -330,10 +400,15 @@
     }
     .tl-items { margin-left:148px; display:flex; flex-direction:column; gap:10px }
     .tl-card {
-      background:var(--bg-card); border:none; border-radius:var(--rl);
-      padding:14px 18px; cursor:pointer; transition:all .2s; box-shadow:var(--shadow);
+      background: rgba(255,255,255,0.60);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+      padding:14px 18px; cursor:pointer; transition:all .2s;
     }
-    .tl-card:hover { box-shadow:var(--shadow-md); transform:translateX(4px) }
+    .tl-card:hover { box-shadow:var(--shadow-md); transform:translateX(4px); border-color:rgba(255,141,187,0.35) }
     .tl-card-top { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap }
     .tl-brand { font-weight:800; font-size:14px }
     .tl-desc { font-size:12px; color:var(--text-m); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
@@ -347,7 +422,11 @@
     }
     .overlay.open { opacity:1; pointer-events:all }
     .modal {
-      background:var(--bg-card); border-radius:22px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius:22px;
       width:100%; max-width:740px; max-height:90vh; overflow-y:auto;
       transform:translateY(26px) scale(.96); transition:transform .22s;
       box-shadow:var(--shadow-lg);
@@ -407,7 +486,11 @@
     }
     .eng-overlay.open { opacity:1; pointer-events:all }
     .eng-panel {
-      background:var(--bg-card); border-radius:20px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius:20px;
       width:100%; max-width:440px; box-shadow:var(--shadow-lg);
       transform:translateY(20px) scale(.97); transition:transform .2s;
     }
@@ -485,8 +568,13 @@
     .tag-mgr-pills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px }
     .tag-mgr-pill {
       display:flex; align-items:center; gap:4px; padding:5px 12px 5px 14px;
-      border-radius:99px; font-size:12px; font-weight:700;
-      background:var(--bg); border:2px solid var(--border); color:var(--text-m);
+      border-radius:999px; font-size:12px; font-weight:700;
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.85);
+      box-shadow: 0 2px 10px rgba(255,141,187,0.1), inset 0 1px 0 rgba(255,255,255,0.9);
+      color: var(--text-m);
     }
     .tag-mgr-del {
       width:18px; height:18px; border-radius:50%; border:none;
@@ -501,6 +589,138 @@
       border:2px solid var(--border); background:var(--bg); color:var(--text);
     }
     .tag-mgr-add input:focus { outline:none; border-color:var(--blue) }
+
+    /* ── Background decoration blobs ───────────────── */
+    .bg-deco {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .bg-blob {
+      position: absolute; border-radius: 50%; filter: blur(80px);
+    }
+    .b1 {
+      width: 600px; height: 600px; opacity: 0.65;
+      background: radial-gradient(circle, rgba(255,141,187,0.35), transparent 70%);
+      top: -150px; right: -100px;
+    }
+    .b2 {
+      width: 500px; height: 500px; opacity: 0.55;
+      background: radial-gradient(circle, rgba(89,172,255,0.25), transparent 70%);
+      bottom: -100px; left: -80px;
+    }
+    .b3 {
+      width: 400px; height: 400px; opacity: 0.35;
+      background: radial-gradient(circle, rgba(255,227,89,0.18), transparent 70%);
+      top: 40%; left: 35%;
+    }
+
+    /* ── AI Empty State ─────────────────────────────── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0) }
+      50%       { transform: translateY(-9px) }
+    }
+    .ai-empty-state {
+      position: relative; text-align: center;
+      padding: 36px 20px 28px; overflow: hidden;
+    }
+    .ai-glow-bg {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-60%);
+      width: 220px; height: 220px; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, rgba(255,141,187,0.18) 0%, transparent 68%);
+    }
+    .ai-brain-icon {
+      font-size: 50px; margin-bottom: 14px;
+      animation: float 3.2s ease-in-out infinite;
+      display: inline-block; position: relative; z-index: 1;
+    }
+    .ai-empty-title {
+      font-size: 15px; font-weight: 800; color: var(--text);
+      margin-bottom: 8px; position: relative; z-index: 1;
+    }
+    .ai-empty-sub {
+      font-size: 13px; color: var(--text-m); line-height: 1.75;
+      margin-bottom: 14px; position: relative; z-index: 1;
+    }
+    .ai-empty-hint {
+      font-size: 11.5px; color: var(--text-l); position: relative; z-index: 1;
+    }
+
+    /* ── Content Images Grid (form) ─────────────────── */
+    .content-img-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 2px 0;
+      min-height: 80px;
+    }
+    .content-img-grid.drag-over { outline: 2px dashed #FF8DBB; border-radius: var(--r); }
+    .ci-cell {
+      aspect-ratio: 1; position: relative; border-radius: 12px; overflow: hidden;
+      cursor: pointer; background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(255,255,255,0.75);
+    }
+    .ci-cell img { width:100%; height:100%; object-fit:cover; display:block; transition:opacity .15s }
+    .ci-cell:hover img { opacity:.82 }
+    .ci-remove {
+      position:absolute; top:5px; right:5px; background:rgba(26,26,26,.65); color:#fff;
+      border:none; border-radius:50%; width:22px; height:22px; cursor:pointer;
+      font-size:11px; display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:opacity .15s; z-index:1;
+    }
+    .ci-cell:hover .ci-remove { opacity:1 }
+    .ci-add {
+      border: 2px dashed rgba(255,141,187,.45);
+      background: rgba(255,255,255,.3);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .18s; gap:4px; border-radius:12px;
+    }
+    .ci-add:hover { border-color:#FF8DBB; background:rgba(255,141,187,.07) }
+    .ci-add-icon { font-size:22px; color:rgba(255,141,187,.75); line-height:1 }
+    .ci-add-label { font-size:10.5px; color:var(--text-l); font-weight:600; text-align:center; line-height:1.45 }
+    .ci-limit-hint { grid-column:1/-1; font-size:11px; color:var(--text-l); text-align:center; padding:8px; font-weight:600 }
+
+    /* Count badge on library card image */
+    .cc-img-wrap { position:relative; margin:8px 0 }
+    .cc-img-count {
+      position:absolute; bottom:8px; right:8px; background:rgba(26,26,26,.65); color:#fff;
+      font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; pointer-events:none;
+    }
+
+    /* Modal image grid */
+    .modal-img-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px }
+    .modal-img-thumb {
+      aspect-ratio:1; border-radius:10px; overflow:hidden; cursor:pointer; transition:opacity .15s;
+    }
+    .modal-img-thumb:hover { opacity:.8 }
+    .modal-img-thumb img { width:100%; height:100%; object-fit:cover; display:block }
+
+    /* ── Lightbox ────────────────────────────────────── */
+    .lightbox-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.92);
+      z-index:3000; display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity .2s;
+    }
+    .lightbox-overlay.open { opacity:1; pointer-events:all }
+    .lightbox-content { position:relative; display:flex; align-items:center; justify-content:center }
+    .lightbox-content img {
+      max-width:90vw; max-height:85vh; object-fit:contain;
+      border-radius:10px; display:block;
+    }
+    .lightbox-close {
+      position:absolute; top:-44px; right:0; background:rgba(255,255,255,.15); color:#fff;
+      border:none; border-radius:50%; width:36px; height:36px; font-size:18px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+    }
+    .lightbox-close:hover { background:rgba(255,255,255,.28) }
+    .lightbox-prev, .lightbox-next {
+      position:absolute; top:50%; transform:translateY(-50%);
+      background:rgba(255,255,255,.15); color:#fff;
+      border:none; border-radius:50%; width:44px; height:44px;
+      font-size:26px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background .15s; user-select:none;
+    }
+    .lightbox-prev { left:-60px } .lightbox-next { right:-60px }
+    .lightbox-prev:hover, .lightbox-next:hover { background:rgba(255,255,255,.30) }
+    .lightbox-counter {
+      position:absolute; bottom:-36px; left:50%; transform:translateX(-50%);
+      color:rgba(255,255,255,.6); font-size:13px; font-weight:600; white-space:nowrap;
+    }
 
     /* ── Scrollbar ──────────────────────────────────── */
     ::-webkit-scrollbar { width:5px; height:5px }
@@ -529,10 +749,19 @@
 </head>
 <body>
 
+<div class="bg-deco" aria-hidden="true">
+  <div class="bg-blob b1"></div>
+  <div class="bg-blob b2"></div>
+  <div class="bg-blob b3"></div>
+</div>
+
 <header class="header">
   <div class="logo">
     <img src="logo-color.png" alt="Peekaboo">
-    <div class="logo-slogan">Peek into what makes content work</div>
+    <div class="logo-slogan">
+      <div>Peek into what makes content work</div>
+      <div style="font-size:9.5px; color:rgba(255,255,255,.28); margin-top:2px; letter-spacing:.03em">让我看看什么在偷偷发力～</div>
+    </div>
   </div>
   <div class="header-right">
     <div class="file-status" id="fileStatus"><span class="dot"></span><span>未绑定文件</span></div>
@@ -544,7 +773,7 @@
 
 <nav class="nav" id="nav">
   <div class="nav-item active" data-tab="entry">✏️ 录入</div>
-  <div class="nav-item" data-tab="library">🗂 内容库</div>
+  <div class="nav-item" data-tab="library">🗂 收藏库</div>
   <div class="nav-item" data-tab="timeline">📅 时间线</div>
   <div class="nav-item" data-tab="settings">⚙️ 设置</div>
 </nav>
@@ -610,47 +839,29 @@
             <div class="fg full">
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
 
-                <!-- 左：内容截图 -->
+                <!-- 左：内容截图（多图，最多9张）-->
                 <div>
-                  <label>内容截图（选填）</label>
-                  <div class="img-zone empty" id="imgZone"
-                       onclick="document.getElementById('imgFileInput').click()"
+                  <label>内容截图（选填，最多9张）</label>
+                  <input type="file" id="imgFileInput" accept="image/*" multiple style="display:none"
+                         onchange="handleContentImagesSelected(this.files)">
+                  <div id="contentImagesGrid" class="content-img-grid"
+                       onmouseenter="lastPasteZone='content'"
                        ondragover="event.preventDefault();this.classList.add('drag-over')"
                        ondragleave="this.classList.remove('drag-over')"
-                       ondrop="event.preventDefault();this.classList.remove('drag-over');handleImageFile(event.dataTransfer.files[0],'content')"
-                       onmouseenter="lastPasteZone='content'">
-                    <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImageFile(this.files[0],'content')">
-                    <div>📷 点击上传 / Ctrl+V 粘贴</div>
-                    <div style="font-size:11px;margin-top:4px">支持 JPG · PNG · GIF · WebP</div>
-                  </div>
-                  <div id="imgPreview" style="display:none;position:relative;margin-top:6px">
-                    <div class="img-zone has-img">
-                      <img id="imgPreviewImg" src="" alt="预览">
-                      <button type="button" class="img-remove" onclick="clearImage('content')">✕</button>
-                    </div>
-                    <div class="img-paste-hint" id="imgSizeHint"></div>
+                       ondrop="event.preventDefault();this.classList.remove('drag-over');handleContentImagesDrop(event)">
                   </div>
                 </div>
 
-                <!-- 右：互动数据截图 -->
+                <!-- 右：互动数据截图（多图，最多9张）-->
                 <div>
-                  <label>互动数据截图（选填）</label>
-                  <div class="img-zone empty" id="engZone"
-                       onclick="document.getElementById('engFileInput').click()"
+                  <label>互动数据截图（选填，最多9张）</label>
+                  <input type="file" id="engImgFileInput" accept="image/*" multiple style="display:none"
+                         onchange="handleEngImagesSelected(this.files)">
+                  <div id="engImagesGrid" class="content-img-grid"
+                       onmouseenter="lastPasteZone='engagement'"
                        ondragover="event.preventDefault();this.classList.add('drag-over')"
                        ondragleave="this.classList.remove('drag-over')"
-                       ondrop="event.preventDefault();this.classList.remove('drag-over');handleImageFile(event.dataTransfer.files[0],'engagement')"
-                       onmouseenter="lastPasteZone='engagement'">
-                    <input type="file" id="engFileInput" accept="image/*" style="display:none" onchange="handleImageFile(this.files[0],'engagement')">
-                    <div>📊 点击上传 / Ctrl+V 粘贴</div>
-                    <div style="font-size:11px;margin-top:4px">AI 将自动读取互动数字</div>
-                  </div>
-                  <div id="engPreview" style="display:none;position:relative;margin-top:6px">
-                    <div class="img-zone has-img">
-                      <img id="engPreviewImg" src="" alt="互动预览">
-                      <button type="button" class="img-remove" onclick="clearImage('engagement')">✕</button>
-                    </div>
-                    <div class="img-paste-hint" id="engSizeHint"></div>
+                       ondrop="event.preventDefault();this.classList.remove('drag-over');handleEngImagesDrop(event)">
                   </div>
                 </div>
 
@@ -675,10 +886,12 @@
         <div class="card" id="analysisPanel">
           <div class="section-title">🤖 AI 分析结果</div>
           <div id="analysisPanelContent">
-            <div class="analysis-empty">
-              <div style="font-size:40px;margin-bottom:10px;opacity:.3">✨</div>
-              <p>保存内容后点击<br><strong>「保存并 AI 分析」</strong><br>即可获得智能分析</p>
-              <div style="margin-top:14px;font-size:12px;color:var(--text-l)">需要在设置中填写 DeepSeek API Key</div>
+            <div class="ai-empty-state">
+              <div class="ai-glow-bg"></div>
+              <div class="ai-brain-icon">✨</div>
+              <div class="ai-empty-title">竞品深度洞察</div>
+              <div class="ai-empty-sub">保存内容后点击<br><strong>「保存并 AI 分析」</strong><br>即可获得智能分析</div>
+              <div class="ai-empty-hint">需在设置中填写 DeepSeek API Key</div>
             </div>
           </div>
         </div>
@@ -690,7 +903,7 @@
     </div>
   </div>
 
-  <!-- ===== TAB: 内容库 ===== -->
+  <!-- ===== TAB: 收藏库 ===== -->
   <div class="tab" id="tab-library">
     <div class="stats-row" id="statsRow"></div>
     <div class="filter-bar">
@@ -815,6 +1028,18 @@
             API Key 仅存储于本地，不上传任何服务器。
           </p>
         </div>
+
+        <div class="card settings-section" style="margin-top:16px">
+          <div class="settings-section-title">关于 Peekaboo</div>
+          <div style="line-height:1.9; font-size:14px; color:var(--text-m); padding: 4px 0">
+            <p style="margin-bottom:12px">
+              Peekaboo 是一款专为海外儿童沙盒游戏从业者设计的竞品内容追踪工具。你可以用它收藏竞品在各平台发布的宣传内容、自动追踪应用商店的版本更新，并通过 AI 分析读懂每一条内容背后的视觉策略、流行趋势和商业意图，帮你把散落在各处的竞品信息变成有价值的行业洞察。
+            </p>
+            <p style="font-size:13px; color:var(--text-l)">
+              Peekaboo is a competitor content tracking tool built for professionals in the kids' sandbox game space. Collect promotional content from major platforms, auto-track app store updates, and use AI analysis to decode the visual strategy, trends, and business intent behind every post — turning scattered competitor signals into actionable insights.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -842,11 +1067,11 @@
 <div class="eng-overlay" id="engOverlay" onclick="handleEngOverlayClick(event)">
   <div class="eng-panel">
     <div class="eng-panel-head">
-      <h3>📊 更新互动数据截图</h3>
+      <h3>📊 更新互动数据截图（最多9张）</h3>
       <button class="btn btn-ghost btn-sm" onclick="closeEngPanel()">✕</button>
     </div>
     <div class="eng-panel-body">
-      <p class="eng-panel-hint">上传新的互动数据截图，保存后 AI 将重新读取点赞/评论/转发数字并更新分析。支持 Ctrl+V 粘贴。</p>
+      <p class="eng-panel-hint">上传互动数据截图（最多9张），保存后 AI 将重新读取点赞/评论/转发数字并更新分析。支持多选、拖拽、Ctrl+V 粘贴。</p>
       <div id="engZoneWrap"></div>
       <div class="btn-row" style="margin-top:18px">
         <button id="engSaveBtn" class="btn btn-primary" onclick="saveEngPanel()">💾 保存并重新分析</button>
@@ -856,13 +1081,25 @@
   </div>
 </div>
 
+<!-- Lightbox -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <button class="lightbox-prev" id="lightboxPrev" onclick="shiftLightbox(-1)">‹</button>
+    <img id="lightboxImg" src="" alt="全图">
+    <button class="lightbox-next" id="lightboxNext" onclick="shiftLightbox(1)">›</button>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+  </div>
+</div>
+
 <script>
 // ================================================================
 // CONSTANTS
 // ================================================================
 const STORAGE_KEY = 'cpt-tracker-v2';
 const DEFAULT_BRANDS   = ['Toca Boca', 'Avatar World', '米加小镇'];
-const DEFAULT_PLATFORMS = ['Instagram', 'App Store', 'Google Play', 'TikTok', '小红书'];
+const FIXED_PLATFORMS  = ['Instagram', 'TikTok', 'Facebook', 'YouTube', '小红书', 'App Store', 'Google Play'];
+const DEFAULT_PLATFORMS = FIXED_PLATFORMS; // kept for backward compat
 const MINT_LABEL = {1:'日常维护', 2:'轻度推广', 3:'常规推广', 4:'重点推广', 5:'重点战役'};
 const MINT_CLASS = {1:'m1', 2:'m2', 3:'m3', 4:'m4', 5:'m5'};
 
@@ -894,8 +1131,10 @@ let db = {
 };
 let syncFileHandle = null;
 let currentModalId = null;
-let formState = { brand: '', platform: '', imageBase64: '', engagementImageBase64: '' };
+let formState = { brand: '', platform: '', contentImages: [], engagementImages: [] };
 let lastPasteZone = 'content'; // tracks which image zone Ctrl+V should target
+const MAX_CONTENT_IMAGES = 9;
+const MAX_ENG_IMAGES = 9;
 
 // ================================================================
 // STORAGE
@@ -909,8 +1148,18 @@ function loadFromStorage() {
       db.settings = { ...db.settings, ...(p.settings || {}) };
     }
   } catch (e) { console.error('Load error:', e); }
-  if (!db.settings.brands?.length)   db.settings.brands   = [...DEFAULT_BRANDS];
-  if (!db.settings.platforms?.length) db.settings.platforms = [...DEFAULT_PLATFORMS];
+  if (!db.settings.brands?.length) db.settings.brands = [...DEFAULT_BRANDS];
+  // Platforms are always fixed — override whatever was saved
+  db.settings.platforms = [...FIXED_PLATFORMS];
+  // Migrate old single-image entries to arrays
+  db.entries.forEach(e => {
+    if (!e.contentImages) {
+      e.contentImages = e.imageBase64 ? [e.imageBase64] : [];
+    }
+    if (!e.engagementImages) {
+      e.engagementImages = e.engagementImageBase64 ? [e.engagementImageBase64] : [];
+    }
+  });
 }
 
 function saveToStorage() {
@@ -1016,12 +1265,16 @@ function genId() {
 }
 
 function addEntry(data) {
+  const contentImages = data.contentImages || [];
+  const engagementImages = data.engagementImages || [];
   const entry = {
     id: genId(),
     brand: data.brand, platform: data.platform, date: data.date,
     link: data.link.trim(), description: data.description.trim(),
-    engagementImageBase64: data.engagementImageBase64 || '',
-    imageBase64: data.imageBase64 || '',
+    engagementImages: engagementImages,
+    engagementImageBase64: engagementImages[0] || '', // backward compat
+    contentImages: contentImages,
+    imageBase64: contentImages[0] || '', // backward compat
     imageUrl: '', // legacy field
     manualTags: data.manualTags.filter(Boolean),
     analysis: null,
@@ -1088,11 +1341,13 @@ function renderTagSelector(type) {
 
   labelEl.textContent = selected ? '✓ ' + selected : '';
 
+  const addBtn = type === 'platform' ? '' :
+    `<button type="button" class="ts-add-btn" onclick="tsShowAdd('${type}')" title="添加新品牌">+</button>`;
   pillsEl.innerHTML = list.map(item => `
     <div class="ts-pill ${item===selected?'active':''}" onclick="tsSelect('${type}','${escAttr(item)}')">
       ${escHtml(item)}
     </div>
-  `).join('') + `<button type="button" class="ts-add-btn" onclick="tsShowAdd('${type}')" title="添加新${type==='brand'?'品牌':'平台'}">+</button>`;
+  `).join('') + addBtn;
 }
 
 function tsSelect(type, val) {
@@ -1137,6 +1392,16 @@ function renderMgr(type) {
   const list = type==='brand' ? db.settings.brands : db.settings.platforms;
   const noun = type==='brand' ? '品牌' : '平台';
   const inputId = `mgr-${type}-input`;
+
+  if (type === 'platform') {
+    // Platforms are fixed — read-only display only
+    document.getElementById(id).innerHTML = `
+      <div class="tag-mgr-pills">
+        ${list.map(item => `<div class="tag-mgr-pill">${escHtml(item)}</div>`).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--text-l);margin-top:8px">平台列表已固定，不支持自定义</div>`;
+    return;
+  }
 
   document.getElementById(id).innerHTML = `
     <div class="tag-mgr-pills">
@@ -1192,21 +1457,6 @@ function populatePlatformFilters() {
 // ================================================================
 // IMAGE HANDLING
 // ================================================================
-async function handleImageFile(file, zone = 'content') {
-  if (!file || !file.type.startsWith('image/')) return;
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const compressed = await compressImage(e.target.result, 900, 0.75);
-    if (zone === 'engagement') {
-      formState.engagementImageBase64 = compressed;
-    } else {
-      formState.imageBase64 = compressed;
-    }
-    showImagePreview(compressed, zone);
-  };
-  reader.readAsDataURL(file);
-}
-
 function compressImage(dataUrl, maxW, quality) {
   return new Promise(resolve => {
     const img = new Image();
@@ -1222,46 +1472,185 @@ function compressImage(dataUrl, maxW, quality) {
   });
 }
 
-function showImagePreview(dataUrl, zone = 'content') {
-  const ids = zone === 'engagement'
-    ? { zone:'engZone', preview:'engPreview', img:'engPreviewImg', hint:'engSizeHint' }
-    : { zone:'imgZone', preview:'imgPreview', img:'imgPreviewImg', hint:'imgSizeHint' };
-  document.getElementById(ids.zone).style.display    = 'none';
-  document.getElementById(ids.preview).style.display = 'block';
-  document.getElementById(ids.img).src = dataUrl;
-  const kb = Math.round(dataUrl.length * 0.75 / 1024);
-  document.getElementById(ids.hint).textContent = `图片已压缩 · 约 ${kb} KB`;
+// ── Content Images (multi, up to MAX_CONTENT_IMAGES) ──────────
+function renderContentImagesGrid() {
+  const grid = document.getElementById('contentImagesGrid');
+  if (!grid) return;
+  const imgs = formState.contentImages;
+  const atMax = imgs.length >= MAX_CONTENT_IMAGES;
+  let html = imgs.map((src, i) => `
+    <div class="ci-cell">
+      <img src="${src}" onclick="openLightbox(formState.contentImages,${i})" alt="截图${i+1}">
+      <button type="button" class="ci-remove" onclick="removeContentImage(${i})">✕</button>
+    </div>`).join('');
+  if (!atMax) {
+    html += `<div class="ci-add" onclick="document.getElementById('imgFileInput').click()">
+      <span class="ci-add-icon">+</span>
+      <span class="ci-add-label">${imgs.length===0?'点击添加<br>Ctrl+V 粘贴':'添加图片'}</span>
+    </div>`;
+  } else {
+    html += `<div class="ci-limit-hint">已达上限 ${MAX_CONTENT_IMAGES} 张</div>`;
+  }
+  grid.innerHTML = html;
 }
 
-function clearImage(zone = 'content') {
-  if (zone === 'engagement') {
-    formState.engagementImageBase64 = '';
-    document.getElementById('engZone').style.display    = 'block';
-    document.getElementById('engPreview').style.display = 'none';
-    document.getElementById('engPreviewImg').src = '';
-    document.getElementById('engFileInput').value = '';
-  } else {
-    formState.imageBase64 = '';
-    document.getElementById('imgZone').style.display    = 'block';
-    document.getElementById('imgPreview').style.display = 'none';
-    document.getElementById('imgPreviewImg').src = '';
-    document.getElementById('imgFileInput').value = '';
+async function _addContentImagesFromFiles(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  const remaining = MAX_CONTENT_IMAGES - formState.contentImages.length;
+  if (!remaining) { showToast(`已达上限 ${MAX_CONTENT_IMAGES} 张`, 'warning'); return; }
+  const toProcess = arr.slice(0, remaining);
+  for (const file of toProcess) {
+    const dataUrl = await new Promise(r => {
+      const reader = new FileReader();
+      reader.onload = e => r(e.target.result);
+      reader.readAsDataURL(file);
+    });
+    const compressed = await compressImage(dataUrl, 1200, 0.80);
+    formState.contentImages.push(compressed);
   }
+  renderContentImagesGrid();
+  if (arr.length > remaining) showToast(`已达上限，仅添加了前 ${remaining} 张`, 'warning');
+}
+
+function handleContentImagesSelected(files) {
+  if (!files || !files.length) return;
+  _addContentImagesFromFiles(files);
+  document.getElementById('imgFileInput').value = '';
+}
+
+function handleContentImagesDrop(e) {
+  _addContentImagesFromFiles(e.dataTransfer.files);
+}
+
+function removeContentImage(index) {
+  formState.contentImages.splice(index, 1);
+  renderContentImagesGrid();
+}
+
+// ── Engagement Images (multi, up to MAX_ENG_IMAGES) ───────────
+function renderEngImagesGrid() {
+  const grid = document.getElementById('engImagesGrid');
+  if (!grid) return;
+  const imgs = formState.engagementImages;
+  const atMax = imgs.length >= MAX_ENG_IMAGES;
+  let html = imgs.map((src, i) => `
+    <div class="ci-cell">
+      <img src="${src}" onclick="openLightbox(formState.engagementImages,${i})" alt="互动截图${i+1}">
+      <button type="button" class="ci-remove" onclick="removeEngImage(${i})">✕</button>
+    </div>`).join('');
+  if (!atMax) {
+    html += `<div class="ci-add" onclick="document.getElementById('engImgFileInput').click()">
+      <span class="ci-add-icon">+</span>
+      <span class="ci-add-label">${imgs.length===0?'点击添加<br>Ctrl+V 粘贴':'添加图片'}</span>
+    </div>`;
+  } else {
+    html += `<div class="ci-limit-hint">已达上限 ${MAX_ENG_IMAGES} 张</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+async function _addEngImagesFromFiles(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  const remaining = MAX_ENG_IMAGES - formState.engagementImages.length;
+  if (!remaining) { showToast(`已达上限 ${MAX_ENG_IMAGES} 张`, 'warning'); return; }
+  const toProcess = arr.slice(0, remaining);
+  for (const file of toProcess) {
+    const dataUrl = await new Promise(r => {
+      const reader = new FileReader();
+      reader.onload = e => r(e.target.result);
+      reader.readAsDataURL(file);
+    });
+    const compressed = await compressImage(dataUrl, 900, 0.75);
+    formState.engagementImages.push(compressed);
+  }
+  renderEngImagesGrid();
+  if (arr.length > remaining) showToast(`已达上限，仅添加了前 ${remaining} 张`, 'warning');
+}
+
+function handleEngImagesSelected(files) {
+  if (!files || !files.length) return;
+  _addEngImagesFromFiles(files);
+  document.getElementById('engImgFileInput').value = '';
+}
+
+function handleEngImagesDrop(e) {
+  _addEngImagesFromFiles(e.dataTransfer.files);
+}
+
+function removeEngImage(index) {
+  formState.engagementImages.splice(index, 1);
+  renderEngImagesGrid();
+}
+
+// ── Lightbox ──────────────────────────────────────────────────
+let _lbImages = [];
+let _lbIndex  = 0;
+
+function openLightbox(images, index) {
+  _lbImages = Array.isArray(images) ? images : [images];
+  _lbIndex  = index || 0;
+  _updateLightbox();
+  document.getElementById('lightboxOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function shiftLightbox(dir) {
+  _lbIndex = (_lbIndex + dir + _lbImages.length) % _lbImages.length;
+  _updateLightbox();
+}
+
+function _updateLightbox() {
+  document.getElementById('lightboxImg').src = _lbImages[_lbIndex];
+  const multi = _lbImages.length > 1;
+  document.getElementById('lightboxCounter').textContent = multi ? `${_lbIndex+1} / ${_lbImages.length}` : '';
+  document.getElementById('lightboxPrev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lightboxNext').style.display = multi ? 'flex' : 'none';
+}
+
+function openEntryLightbox(entryId, index) {
+  const entry = db.entries.find(e => e.id === entryId);
+  if (!entry) return;
+  const imgs = (entry.contentImages && entry.contentImages.length)
+    ? entry.contentImages
+    : (entry.imageBase64 || entry.imageUrl ? [entry.imageBase64 || entry.imageUrl] : []);
+  if (!imgs.length) return;
+  openLightbox(imgs, index);
+}
+
+function openEntryEngLightbox(entryId, index) {
+  const entry = db.entries.find(e => e.id === entryId);
+  if (!entry) return;
+  const imgs = (entry.engagementImages && entry.engagementImages.length)
+    ? entry.engagementImages
+    : (entry.engagementImageBase64 ? [entry.engagementImageBase64] : []);
+  if (!imgs.length) return;
+  openLightbox(imgs, index);
 }
 
 // ================================================================
 // AI ANALYSIS
 // ================================================================
 function buildPrompt(entry) {
-  // Support both new (engagementImageBase64) and old (engagement text) entries
-  const hasEngImg  = !!entry.engagementImageBase64;
+  // Support engagementImages[] (new) and engagementImageBase64 (legacy)
+  const engImgs = (entry.engagementImages && entry.engagementImages.length)
+    ? entry.engagementImages : (entry.engagementImageBase64 ? [entry.engagementImageBase64] : []);
+  const hasEngImg  = engImgs.length > 0;
   const hasEngText = !!(entry.engagement && entry.engagement.trim());
-  const hasImage   = !!entry.imageBase64;
+  const contentImages = (entry.contentImages && entry.contentImages.length)
+    ? entry.contentImages : (entry.imageBase64 ? [entry.imageBase64] : []);
+  const hasImage   = contentImages.length > 0;
 
   const engagementLine = hasEngImg
-    ? '（已附互动数据截图，请从图片中准确读取点赞/评论/转发/收藏等具体数字）'
+    ? `（已附互动数据截图${engImgs.length > 1 ? ' '+engImgs.length+'张' : ''}，请从图片中准确读取点赞/评论/转发/收藏等具体数字）`
     : hasEngText ? `互动数据：${entry.engagement}` : '';
-  const imageLine      = hasImage ? '（已附内容截图，请结合图片进行视觉策略分析）' : '';
+  const imageLine = hasImage
+    ? `（已附内容截图${contentImages.length > 1 ? ' '+contentImages.length+'张' : ''}，请结合图片进行视觉策略分析）`
+    : '';
 
   const engagementGuide = hasEngImg
     ? `已提供互动数据截图，请先从图片中准确读取各项互动数字，然后判断：①各项数据绝对量是否优于该品牌同类内容基准？②评论/点赞/转发/收藏的比例结构说明了什么用户行为特点？③整体传播力评价`
@@ -1322,13 +1711,19 @@ async function analyzeEntry(entryId) {
   if (!apiKey) { showToast('请先在设置中填写 DeepSeek API Key', 'error'); return null; }
 
   const prompt = buildPrompt(entry);
-  const hasAnyImg = !!(entry.imageBase64 || entry.engagementImageBase64);
+  const contentImgs = (entry.contentImages && entry.contentImages.length)
+    ? entry.contentImages.slice(0, 3) // send up to 3 content images to AI
+    : (entry.imageBase64 ? [entry.imageBase64] : []);
+  const engImgsForAI = (entry.engagementImages && entry.engagementImages.length)
+    ? entry.engagementImages.slice(0, 2) // send up to 2 engagement images to AI
+    : (entry.engagementImageBase64 ? [entry.engagementImageBase64] : []);
+  const hasAnyImg = !!(contentImgs.length || engImgsForAI.length);
   const makeBody = (withImg) => {
     let content;
     if (withImg && hasAnyImg) {
       const parts = [{ type:'text', text:prompt }];
-      if (entry.imageBase64)           parts.push({ type:'image_url', image_url:{ url:entry.imageBase64 } });
-      if (entry.engagementImageBase64) parts.push({ type:'image_url', image_url:{ url:entry.engagementImageBase64 } });
+      contentImgs.forEach(img => parts.push({ type:'image_url', image_url:{ url:img } }));
+      engImgsForAI.forEach(img => parts.push({ type:'image_url', image_url:{ url:img } }));
       content = parts;
     } else {
       content = prompt;
@@ -1402,8 +1797,8 @@ function getFormData() {
     date:       document.getElementById('f-date').value,
     link:       document.getElementById('f-link').value || '',
     description:document.getElementById('f-desc').value,
-    imageBase64:formState.imageBase64,
-    engagementImageBase64: formState.engagementImageBase64,
+    contentImages: formState.contentImages,
+    engagementImages: formState.engagementImages,
     manualTags: (document.getElementById('f-tags').value).split(',').map(t=>t.trim()).filter(Boolean)
   };
 }
@@ -1420,9 +1815,9 @@ function validateForm() {
 function clearForm() {
   document.getElementById('entryForm').reset();
   document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
-  formState = { brand:'', platform:'', imageBase64:'', engagementImageBase64:'' };
-  clearImage('content');
-  clearImage('engagement');
+  formState = { brand:'', platform:'', contentImages:[], engagementImages:[] };
+  renderContentImagesGrid();
+  renderEngImagesGrid();
   renderTagSelector('brand');
   renderTagSelector('platform');
   document.getElementById('brandPills').classList.remove('required-err');
@@ -1432,10 +1827,12 @@ function clearForm() {
 
 function resetAnalysisPanel() {
   document.getElementById('analysisPanelContent').innerHTML = `
-    <div class="analysis-empty">
-      <div style="font-size:40px;margin-bottom:10px;opacity:.3">✨</div>
-      <p>保存内容后点击<br><strong>「保存并 AI 分析」</strong><br>即可获得智能分析</p>
-      <div style="margin-top:14px;font-size:12px;color:var(--text-l)">需要在设置中填写 DeepSeek API Key</div>
+    <div class="ai-empty-state">
+      <div class="ai-glow-bg"></div>
+      <div class="ai-brain-icon">✨</div>
+      <div class="ai-empty-title">竞品深度洞察</div>
+      <div class="ai-empty-sub">保存内容后点击<br><strong>「保存并 AI 分析」</strong><br>即可获得智能分析</div>
+      <div class="ai-empty-hint">需在设置中填写 DeepSeek API Key</div>
     </div>`;
 }
 
@@ -1528,7 +1925,9 @@ function renderLibrary() {
   grid.innerHTML = filtered.map(e => {
     const allTags = [...(e.manualTags||[]),...(e.analysis?.tags||[])].slice(0,5);
     const mint = e.analysis?.marketingIntensity || e.analysis?.threatLevel || 0;
-    const imgSrc = e.imageBase64 || e.imageUrl;
+    const contentImgs = (e.contentImages && e.contentImages.length) ? e.contentImages : (e.imageBase64||e.imageUrl ? [e.imageBase64||e.imageUrl] : []);
+    const coverImg = contentImgs[0] || '';
+    const imgCount = contentImgs.length;
     return `<div class="content-card" onclick="openModal('${e.id}')">
       <div class="cc-header">
         <div class="cc-brand">${escHtml(e.brand)}</div>
@@ -1539,9 +1938,9 @@ function renderLibrary() {
         ${e.analysis?.contentType?`<span class="tag" style="${brandTagStyle(e.analysis.contentType)};margin-left:4px">${escHtml(e.analysis.contentType)}</span>`:''}
         ${mint?`<span class="mint ${MINT_CLASS[mint]}" style="margin-left:4px">📊 ${MINT_LABEL[mint]}</span>`:''}
       </div>
-      ${imgSrc?`<img class="cc-img" src="${escAttr(imgSrc)}" onerror="this.style.display='none'">`:''}
+      ${coverImg?`<div class="cc-img-wrap"><img class="cc-img" src="${escAttr(coverImg)}" onerror="this.style.display='none'">${imgCount>1?`<span class="cc-img-count">📷 ${imgCount}</span>`:''}</div>`:''}
       <div class="cc-desc">${escHtml(e.description)}</div>
-      ${e.engagementImageBase64?`<div class="cc-engagement">📊 含互动数据截图</div>`
+      ${(e.engagementImages?.length||e.engagementImageBase64)?`<div class="cc-engagement">📊 含互动数据截图${e.engagementImages?.length>1?' ('+e.engagementImages.length+'张)':''}</div>`
         :e.engagement?`<div class="cc-engagement">💬 ${escHtml(e.engagement)}</div>`:''}
       ${allTags.length?`<div class="cc-tags">${allTags.map(t=>`<span class="tag tag-default">${escHtml(t)}</span>`).join('')}</div>`:''}
       <div class="cc-footer">
@@ -1587,7 +1986,7 @@ function renderTimeline() {
               ${e.analysis?'<span class="analyzed-badge">✅</span>':''}
             </div>
             <div class="tl-desc">${escHtml(e.description)}</div>
-            ${e.engagementImageBase64?`<div style="font-size:11px;color:var(--text-l);margin-top:5px">📊 含互动数据截图</div>`
+            ${(e.engagementImages?.length||e.engagementImageBase64)?`<div style="font-size:11px;color:var(--text-l);margin-top:5px">📊 含互动数据截图${e.engagementImages?.length>1?' ('+e.engagementImages.length+'张)':''}</div>`
               :e.engagement?`<div style="font-size:11px;color:var(--text-l);margin-top:5px">💬 ${escHtml(e.engagement)}</div>`:''}
             ${[...(e.manualTags||[]),...(e.analysis?.tags||[])].slice(0,4).length?
               `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:7px">${[...(e.manualTags||[]),...(e.analysis?.tags||[])].slice(0,4).map(t=>`<span class="tag tag-default">${escHtml(t)}</span>`).join('')}</div>`:''}
@@ -1601,7 +2000,7 @@ function renderTimeline() {
 function renderRecent() {
   const recent = db.entries.slice(0,5);
   const list = document.getElementById('recentList');
-  if (!recent.length) { list.innerHTML='<div style="font-size:13px;color:var(--text-l);padding:8px 0">暂无内容</div>'; return; }
+  if (!recent.length) { list.innerHTML='<div style="font-size:13px;color:var(--text-l);padding:10px 0;text-align:center">👀 还没有录入内容</div>'; return; }
   list.innerHTML = recent.map(e => `
     <div onclick="openModal('${e.id}')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer"
          onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
@@ -1655,7 +2054,9 @@ function openModal(id) {
   document.getElementById('modalTitle').textContent = `${entry.brand} · ${entry.platform}`;
 
   const allTags = [...(entry.manualTags||[]),...(entry.analysis?.tags||[])];
-  const imgSrc  = entry.imageBase64 || entry.imageUrl;
+  const contentImgs = (entry.contentImages && entry.contentImages.length)
+    ? entry.contentImages
+    : (entry.imageBase64 || entry.imageUrl ? [entry.imageBase64 || entry.imageUrl] : []);
 
   let html = `
     <div class="modal-section">
@@ -1671,19 +2072,50 @@ function openModal(id) {
   if (entry.link)
     html += `<div class="modal-section"><div class="modal-section-label">内容链接</div><a href="${escAttr(entry.link)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--primary);word-break:break-all">${escHtml(entry.link)}</a></div>`;
 
-  if (imgSrc || entry.engagementImageBase64) {
-    html += `<div class="modal-section"><div class="modal-section-label">截图</div><div style="display:grid;grid-template-columns:${imgSrc && entry.engagementImageBase64 ? '1fr 1fr' : '1fr'};gap:12px">`;
-    if (imgSrc)
-      html += `<div><div style="font-size:11px;color:var(--text-l);margin-bottom:6px">内容截图</div><img src="${escAttr(imgSrc)}" style="width:100%;max-height:280px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'"></div>`;
-    if (entry.engagementImageBase64)
-      html += `<div><div style="font-size:11px;color:var(--text-l);margin-bottom:6px">互动数据截图</div><img src="${escAttr(entry.engagementImageBase64)}" style="width:100%;max-height:280px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'"></div>`;
-    html += `</div></div>`;
+  const engImgs = (entry.engagementImages && entry.engagementImages.length)
+    ? entry.engagementImages : (entry.engagementImageBase64 ? [entry.engagementImageBase64] : []);
+
+  if (contentImgs.length || engImgs.length) {
+    html += `<div class="modal-section"><div class="modal-section-label">截图</div>`;
+    if (contentImgs.length) {
+      const label = `内容截图${contentImgs.length > 1 ? ` (${contentImgs.length}张)` : ''}`;
+      html += `<div style="margin-bottom:12px"><div style="font-size:11px;color:var(--text-l);margin-bottom:8px">${label}</div>`;
+      if (contentImgs.length === 1) {
+        html += `<img src="${escAttr(contentImgs[0])}" style="width:100%;max-height:300px;object-fit:cover;border-radius:10px;cursor:pointer"
+          onclick="openEntryLightbox('${entry.id}',0)" onerror="this.style.display='none'">`;
+      } else {
+        html += `<div class="modal-img-grid">` +
+          contentImgs.map((img, i) =>
+            `<div class="modal-img-thumb" onclick="openEntryLightbox('${entry.id}',${i})">
+              <img src="${escAttr(img)}" alt="截图${i+1}" onerror="this.style.display='none'">
+            </div>`
+          ).join('') + `</div>`;
+      }
+      html += `</div>`;
+    }
+    if (engImgs.length) {
+      const engLabel = `互动数据截图${engImgs.length > 1 ? ` (${engImgs.length}张)` : ''}`;
+      html += `<div><div style="font-size:11px;color:var(--text-l);margin-bottom:8px">${engLabel}</div>`;
+      if (engImgs.length === 1) {
+        html += `<img src="${escAttr(engImgs[0])}" style="width:100%;max-height:280px;object-fit:cover;border-radius:8px;cursor:pointer"
+          onclick="openEntryEngLightbox('${entry.id}',0)" onerror="this.style.display='none'">`;
+      } else {
+        html += `<div class="modal-img-grid">` +
+          engImgs.map((img, i) =>
+            `<div class="modal-img-thumb" onclick="openEntryEngLightbox('${entry.id}',${i})">
+              <img src="${escAttr(img)}" alt="互动截图${i+1}" onerror="this.style.display='none'">
+            </div>`
+          ).join('') + `</div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
   }
 
   html += `<div class="modal-section"><div class="modal-section-label">内容描述</div><p style="font-size:14px;line-height:1.75;color:var(--text)">${escHtml(entry.description)}</p></div>`;
 
   // Backward-compat: old entries may have engagement as text
-  if (!entry.engagementImageBase64 && entry.engagement)
+  if (!engImgs.length && entry.engagement)
     html += `<div class="modal-section"><div class="modal-section-label">互动数据</div><p style="font-size:14px;color:var(--text);display:flex;align-items:center;gap:6px">💬 ${escHtml(entry.engagement)}</p></div>`;
 
   if (allTags.length)
@@ -1832,13 +2264,14 @@ function showToast(msg, type='info') {
 // ENGAGEMENT UPDATE PANEL
 // ================================================================
 let engPanelEntryId = null;
-let engPanelImageBase64 = '';
+let engPanelImages = [];
 
 function openEngPanel(id) {
   engPanelEntryId = id;
   const entry = db.entries.find(e => e.id === id);
-  engPanelImageBase64 = entry?.engagementImageBase64 || '';
-  renderEngPanel();
+  engPanelImages = entry?.engagementImages?.slice()
+    || (entry?.engagementImageBase64 ? [entry.engagementImageBase64] : []);
+  renderEngPanelGrid();
   document.getElementById('engOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1847,57 +2280,77 @@ function closeEngPanel() {
   document.getElementById('engOverlay').classList.remove('open');
   document.body.style.overflow = '';
   engPanelEntryId = null;
-  engPanelImageBase64 = '';
+  engPanelImages = [];
 }
 
 function handleEngOverlayClick(e) {
   if (e.target === document.getElementById('engOverlay')) closeEngPanel();
 }
 
-function renderEngPanel() {
+function renderEngPanelGrid() {
   const wrap = document.getElementById('engZoneWrap');
-  if (engPanelImageBase64) {
-    wrap.innerHTML = `
-      <div class="img-zone has-img" style="position:relative">
-        <img src="${engPanelImageBase64}" style="width:100%;max-height:220px;object-fit:cover;display:block;border-radius:14px">
-        <button type="button" class="img-remove" onclick="clearEngPanel()">✕</button>
-      </div>
-      <div style="font-size:11px;color:var(--text-l);text-align:center;margin-top:6px">点击 ✕ 清除后可重新上传</div>`;
+  if (!wrap) return;
+  const atMax = engPanelImages.length >= MAX_ENG_IMAGES;
+  let html = `<div class="content-img-grid"
+    onmouseenter="lastPasteZone='engPanel'"
+    ondragover="event.preventDefault()"
+    ondrop="event.preventDefault();_addEngPanelImagesFromFiles(event.dataTransfer.files)">`;
+  html += engPanelImages.map((src, i) => `
+    <div class="ci-cell">
+      <img src="${src}" onclick="openLightbox(engPanelImages,${i})" alt="互动截图${i+1}">
+      <button type="button" class="ci-remove" onclick="removeEngPanelImage(${i})">✕</button>
+    </div>`).join('');
+  if (!atMax) {
+    html += `<div class="ci-add" onclick="document.getElementById('engPanelFileInput').click()">
+      <span class="ci-add-icon">+</span>
+      <span class="ci-add-label">${engPanelImages.length===0?'点击上传<br>Ctrl+V 粘贴':'添加图片'}</span>
+    </div>`;
   } else {
-    wrap.innerHTML = `
-      <div class="img-zone empty" id="engPanelZone"
-           onclick="document.getElementById('engPanelFileInput').click()"
-           ondragover="event.preventDefault();this.classList.add('drag-over')"
-           ondragleave="this.classList.remove('drag-over')"
-           ondrop="event.preventDefault();this.classList.remove('drag-over');handleEngPanelFile(event.dataTransfer.files[0])"
-           onmouseenter="lastPasteZone='engPanel'">
-        <input type="file" id="engPanelFileInput" accept="image/*" style="display:none" onchange="handleEngPanelFile(this.files[0])">
-        <div>📊 点击上传 / Ctrl+V 粘贴</div>
-        <div style="font-size:11px;margin-top:4px">AI 将自动读取互动数字</div>
-      </div>`;
+    html += `<div class="ci-limit-hint">已达上限 ${MAX_ENG_IMAGES} 张</div>`;
   }
+  html += `</div>`;
+  html += `<input type="file" id="engPanelFileInput" accept="image/*" multiple style="display:none" onchange="handleEngPanelFilesSelected(this.files)">`;
+  wrap.innerHTML = html;
 }
 
-function clearEngPanel() {
-  engPanelImageBase64 = '';
-  renderEngPanel();
+function removeEngPanelImage(index) {
+  engPanelImages.splice(index, 1);
+  renderEngPanelGrid();
 }
 
-async function handleEngPanelFile(file) {
-  if (!file || !file.type.startsWith('image/')) return;
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    engPanelImageBase64 = await compressImage(ev.target.result, 900, 0.75);
-    renderEngPanel();
-  };
-  reader.readAsDataURL(file);
+async function _addEngPanelImagesFromFiles(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  const remaining = MAX_ENG_IMAGES - engPanelImages.length;
+  if (!remaining) { showToast(`已达上限 ${MAX_ENG_IMAGES} 张`, 'warning'); return; }
+  const toProcess = arr.slice(0, remaining);
+  for (const file of toProcess) {
+    const dataUrl = await new Promise(r => {
+      const reader = new FileReader();
+      reader.onload = e => r(e.target.result);
+      reader.readAsDataURL(file);
+    });
+    const compressed = await compressImage(dataUrl, 900, 0.75);
+    engPanelImages.push(compressed);
+  }
+  renderEngPanelGrid();
+  if (arr.length > remaining) showToast(`已达上限，仅添加了前 ${remaining} 张`, 'warning');
+}
+
+function handleEngPanelFilesSelected(files) {
+  if (!files || !files.length) return;
+  _addEngPanelImagesFromFiles(files);
+  const inp = document.getElementById('engPanelFileInput');
+  if (inp) inp.value = '';
 }
 
 async function saveEngPanel() {
   if (!engPanelEntryId) return;
-  if (!engPanelImageBase64) { showToast('请先上传互动数据截图', 'warning'); return; }
+  if (!engPanelImages.length) { showToast('请先上传互动数据截图', 'warning'); return; }
   const id = engPanelEntryId;
-  updateEntry(id, { engagementImageBase64: engPanelImageBase64 });
+  updateEntry(id, {
+    engagementImages: engPanelImages,
+    engagementImageBase64: engPanelImages[0] || '' // backward compat
+  });
   renderAll();
   closeEngPanel();
   showToast('截图已保存，正在重新分析…', 'success');
@@ -1922,14 +2375,18 @@ function init() {
   document.documentElement.setAttribute('data-theme', db.settings.theme||'light');
   document.getElementById('themeBtn').textContent = db.settings.theme==='dark' ? '☀️' : '🌙';
   document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+  renderContentImagesGrid();
+  renderEngImagesGrid();
 
-  // Paste handler: routes to engPanel when open, else to entry form zone
+  // Paste handler
   document.addEventListener('paste', e => {
+    const lbOpen  = document.getElementById('lightboxOverlay').classList.contains('open');
+    if (lbOpen) return;
     const engOpen = document.getElementById('engOverlay').classList.contains('open');
     if (engOpen) {
       const items = e.clipboardData?.items || [];
       for (const item of items) {
-        if (item.type.startsWith('image/')) { e.preventDefault(); handleEngPanelFile(item.getAsFile()); break; }
+        if (item.type.startsWith('image/')) { e.preventDefault(); _addEngPanelImagesFromFiles([item.getAsFile()]); break; }
       }
       return;
     }
@@ -1937,12 +2394,26 @@ function init() {
     if (activeTab !== 'entry') return;
     const items = e.clipboardData?.items || [];
     for (const item of items) {
-      if (item.type.startsWith('image/')) { e.preventDefault(); handleImageFile(item.getAsFile(), lastPasteZone); break; }
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        if (lastPasteZone === 'content') {
+          _addContentImagesFromFiles([item.getAsFile()]);
+        } else {
+          _addEngImagesFromFiles([item.getAsFile()]);
+        }
+        break;
+      }
     }
   });
 
-  // ESC closes panels
+  // ESC / arrow key handler
   document.addEventListener('keydown', e => {
+    const lbOpen = document.getElementById('lightboxOverlay').classList.contains('open');
+    if (lbOpen) {
+      if (e.key === 'Escape')      { closeLightbox(); return; }
+      if (e.key === 'ArrowLeft')   { shiftLightbox(-1); return; }
+      if (e.key === 'ArrowRight')  { shiftLightbox(1); return; }
+    }
     if (e.key === 'Escape') {
       if (document.getElementById('engOverlay').classList.contains('open')) { closeEngPanel(); return; }
       closeModal();
