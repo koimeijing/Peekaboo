@@ -300,7 +300,8 @@
     .m5 { background:rgba(255,141,187,0.15);color:#C0174F; border:1px solid rgba(255,141,187,0.3);  box-shadow:0 2px 8px rgba(255,141,187,0.18) }
 
     /* ── Stats ──────────────────────────────────────── */
-    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px }
+    .stats-wrap { display:flex; align-items:flex-start; gap:14px; margin-bottom:22px }
+    .stats-row { flex:1; display:grid; grid-template-columns:repeat(4,1fr); gap:14px }
     .stat-card {
       background: rgba(255,255,255,0.60);
       backdrop-filter: blur(12px);
@@ -334,6 +335,55 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .filter-bar label { text-transform:none; font-size:13px; font-weight:600; color:var(--text-m); white-space:nowrap }
+
+    /* ── Filter brand pills ─────────────────────────── */
+    .fb-brand-pills { display:flex; flex-wrap:wrap; gap:6px; align-items:center; width:100% }
+    .fb-bp {
+      padding:5px 14px; border-radius:999px; font-size:12.5px; font-weight:600;
+      cursor:pointer; white-space:nowrap; font-family:inherit;
+      background:rgba(255,255,255,0.65); color:var(--text-m);
+      border:1.5px solid rgba(200,190,180,0.45);
+      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      transition:all .15s;
+    }
+    .fb-bp:hover { background:rgba(255,255,255,0.92); color:var(--text); border-color:rgba(255,141,187,0.35) }
+    .fb-bp.active {
+      background:rgba(255,141,187,0.18); border-color:rgba(255,141,187,0.5);
+      color:#C0174F; font-weight:700;
+      box-shadow:0 2px 10px rgba(255,141,187,0.2),inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    /* ── Batch mode ─────────────────────────────────── */
+    .batch-bar {
+      display:none; align-items:center; gap:12px;
+      background:rgba(255,141,187,0.1);
+      border:1.5px solid rgba(255,141,187,0.35);
+      border-radius:var(--rl); padding:12px 20px; margin-bottom:16px;
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      animation:fadeIn .18s ease;
+      position:relative; z-index:1;
+    }
+    .batch-bar.open { display:flex }
+    .batch-count { font-size:14px; font-weight:700; color:#C0174F; flex:1 }
+    .content-card.batch-mode { cursor:default }
+    .content-card.batch-mode:hover { transform:translateY(-2px) }
+    .cc-checkbox {
+      position:absolute; top:14px; left:14px; z-index:2;
+      width:22px; height:22px; border-radius:7px;
+      background:rgba(255,255,255,0.92); border:2px solid rgba(200,190,180,0.6);
+      display:flex; align-items:center; justify-content:center;
+      font-size:13px; font-weight:900; color:white;
+      transition:all .15s; box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    }
+    .content-card.batch-selected .cc-checkbox {
+      background:#FF8DBB; border-color:#FF8DBB;
+    }
+    .content-card.batch-selected {
+      border-color:rgba(255,141,187,0.6) !important;
+      box-shadow:0 0 0 3px rgba(255,141,187,0.2),0 8px 32px rgba(0,0,0,0.12) !important;
+      transform:translateY(-3px);
+    }
+    .content-card.batch-selected::before { opacity:1 !important }
 
     /* ── Content grid ───────────────────────────────── */
     .content-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px }
@@ -905,11 +955,15 @@
 
   <!-- ===== TAB: 收藏库 ===== -->
   <div class="tab" id="tab-library">
-    <div class="stats-row" id="statsRow"></div>
+    <div class="stats-wrap">
+      <div class="stats-row" id="statsRow"></div>
+      <button class="btn btn-secondary btn-sm" id="batchModeBtn" onclick="enterBatchMode()" style="white-space:nowrap;align-self:flex-start;margin-top:6px">批量管理</button>
+    </div>
+    <div class="batch-bar" id="batchBar"></div>
     <div class="filter-bar">
       <input id="fb-search" type="text" placeholder="🔍 搜索品牌/描述/标签…" oninput="renderLibrary()">
       <select id="fb-platform" onchange="renderLibrary()"><option value="">全部平台</option></select>
-      <input id="fb-brand" type="text" placeholder="品牌筛选" oninput="renderLibrary()">
+      <div id="fb-brand-pills" class="fb-brand-pills"></div>
       <input id="fb-from" type="date" onchange="renderLibrary()">
       <label style="color:var(--text-l)">→</label>
       <input id="fb-to" type="date" onchange="renderLibrary()">
@@ -1133,6 +1187,9 @@ let syncFileHandle = null;
 let currentModalId = null;
 let formState = { brand: '', platform: '', contentImages: [], engagementImages: [] };
 let lastPasteZone = 'content'; // tracks which image zone Ctrl+V should target
+let _fbBrand = '';             // selected brand pill in library filter
+let batchMode = false;
+let batchSelected = new Set();
 const MAX_CONTENT_IMAGES = 9;
 const MAX_ENG_IMAGES = 9;
 
@@ -1309,7 +1366,7 @@ function getFiltered(opts = {}) {
     (e.analysis?.tags||[]).some(t=>t.toLowerCase().includes(s))
   );
   if (opts.platform) list = list.filter(e=>e.platform===opts.platform);
-  if (opts.brand)    list = list.filter(e=>e.brand.toLowerCase().includes(opts.brand.toLowerCase().trim()));
+  if (opts.brand)    list = list.filter(e=>e.brand===opts.brand);
   if (opts.from)     list = list.filter(e=>e.date>=opts.from);
   if (opts.to)       list = list.filter(e=>e.date<=opts.to);
   if (opts.analyzed==='yes') list = list.filter(e=>e.analysis);
@@ -1376,6 +1433,7 @@ function tsConfirmAdd(type) {
     saveToStorage();
     renderMgr(type);
     populatePlatformFilters();
+    if (type==='brand') populateBrandFilters();
   }
   if (type==='brand')    formState.brand    = val;
   if (type==='platform') formState.platform = val;
@@ -1439,9 +1497,11 @@ function mgrRemove(type, val) {
   if (idx >= 0) { list.splice(idx, 1); saveToStorage(); }
   if (type==='brand'    && formState.brand===val)    formState.brand='';
   if (type==='platform' && formState.platform===val) formState.platform='';
+  if (type==='brand'    && _fbBrand===val) { _fbBrand=''; }
   renderMgr(type);
   renderTagSelector(type);
   populatePlatformFilters();
+  if (type==='brand') populateBrandFilters();
 }
 
 function populatePlatformFilters() {
@@ -1452,6 +1512,22 @@ function populatePlatformFilters() {
     sel.innerHTML = '<option value="">全部平台</option>' +
       db.settings.platforms.map(p=>`<option${p===cur?' selected':''}>${escHtml(p)}</option>`).join('');
   });
+}
+
+function populateBrandFilters() {
+  const wrap = document.getElementById('fb-brand-pills');
+  if (!wrap) return;
+  const brands = db.settings.brands || [];
+  wrap.innerHTML = ['',...brands].map(b => {
+    const label = b === '' ? '全部品牌' : b;
+    return `<button class="fb-bp${_fbBrand===b?' active':''}" data-brand="${escAttr(b)}" onclick="setFbBrand(this.dataset.brand)">${escHtml(label)}</button>`;
+  }).join('');
+}
+
+function setFbBrand(val) {
+  _fbBrand = val;
+  populateBrandFilters();
+  renderLibrary();
 }
 
 // ================================================================
@@ -1644,6 +1720,7 @@ function buildPrompt(entry) {
   const contentImages = (entry.contentImages && entry.contentImages.length)
     ? entry.contentImages : (entry.imageBase64 ? [entry.imageBase64] : []);
   const hasImage   = contentImages.length > 0;
+  const isXiaohongshu = entry.platform.includes('小红书');
 
   const engagementLine = hasEngImg
     ? `（已附互动数据截图${engImgs.length > 1 ? ' '+engImgs.length+'张' : ''}，请从图片中准确读取点赞/评论/转发/收藏等具体数字）`
@@ -1656,7 +1733,7 @@ function buildPrompt(entry) {
     ? `已提供互动数据截图，请先从图片中准确读取各项互动数字，然后判断：①各项数据绝对量是否优于该品牌同类内容基准？②评论/点赞/转发/收藏的比例结构说明了什么用户行为特点？③整体传播力评价`
     : hasEngText
       ? `已提供互动数据「${entry.engagement}」，请判断：①数据量是否优于该品牌同类内容基准？②各指标比例结构说明了什么用户行为特点？③整体传播力评价`
-      : `暂无互动数据，根据内容类型、平台特性和发布时机预判传播潜力，并说明判断依据`;
+      : `未提供互动数据——请在此字段明确说明"未提供互动数据，无法进行数据分析"，可做内容传播潜力的定性判断，但严禁估算任何具体数字`;
   const intensityGuide = (hasEngImg || hasEngText)
     ? `结合内容制作规格与互动数据综合评定，请在 marketingIntensity 之后用一句话说明评分依据`
     : `根据内容制作规格、发布策略和平台分发逻辑评定，请在 marketingIntensity 之后用一句话说明评分依据`;
@@ -1666,6 +1743,8 @@ function buildPrompt(entry) {
     '你的服务对象是中国视觉设计师，她负责海外儿童沙盒游戏 AHA World 的视觉物料设计，需要深入理解海外用户文化背景和竞品营销策略。',
     '分析对象为海外儿童沙盒游戏竞品（Toca Boca、Avatar World、米加小镇等），核心用户为欧美/东南亚3-10岁儿童及其家长。',
     '你的分析必须：有具体判断、有跨文化洞察、照顾中国读者对海外文化的认知差距，绝不泛泛罗列。',
+    '【重要规则】分析互动数据时，只能使用用户提供的截图或文字中明确出现的数字。严禁假设、推测或捏造任何互动数据（点赞数、评论数、收藏数、播放量等）。如果没有提供互动数据，engagementInsight字段必须明确说明"未提供互动数据，无法进行数据分析"，不得以任何形式估算或编造数字。',
+    isXiaohongshu ? '【小红书平台特别说明】小红书上围绕Toca Boca、米加小镇、Avatar World、AHA World等开放式沙盒生活游戏的内容创作者，主体并非3-10岁儿童，而是以18-25岁年轻女性为主的成年玩家群体，她们以游戏换装、场景搭建、角色扮演为核心乐趣，内容风格偏向审美表达和生活方式。分析小红书平台内容时，请基于实际用户画像进行判断，不要套用"儿童游戏目标用户为儿童及家长"的固定框架。' : '',
     '',
     '【竞品内容信息】',
     `品牌：${entry.brand}`,
@@ -1677,6 +1756,9 @@ function buildPrompt(entry) {
     `内容描述：${entry.description}`,
   ].filter(Boolean);
 
+  const xiaohongshuField = isXiaohongshu ? `
+  "xiaohongshuInsight": "小红书专项分析：①内容溯源——这条内容的原始形态来自哪里（品牌官方/UGC/KOL/二创），是否有明显的跨平台搬运痕迹②流行趋势——当前在小红书上什么内容风格/话题/标签正在爆发，这条内容是否在借势③兴趣圈层——这条内容属于小红书哪个垂类圈层（如：育儿圈/游戏圈/亲子手工圈），该圈层的核心用户画像和内容喜好是什么④圈内文化——该圈层有哪些特有的表达方式、梗、审美偏好，这条内容是否有运用⑤热点判断——结合内容判断当前相关话题热度，是否有值得AHA World借势的机会",` : '';
+
   return contextLines.join('\n') + `
 
 只返回以下JSON对象，不要任何其他文字、代码块标记或解释：
@@ -1685,13 +1767,13 @@ function buildPrompt(entry) {
   "culturalContext": "文化背景解读：如果内容涉及节日/流行文化/社会话题，请说明——①该话题在海外的文化地位和重要程度（如：万圣节在欧美是仅次于圣诞的第二大节日，儿童角色扮演是核心仪式）②主要流行的国家/地区③主要受众是儿童、家长还是两者都有④中国用户可能不了解的关键背景知识。如不涉及特定文化背景，填：无特殊文化背景，属于通用儿童娱乐内容",
   "trendSignal": "流行趋势判断：①该内容是否在借势当前海外热点/潮流/meme，如果是，具体是什么趋势②哪些国家/地区的用户群体会对此产生强烈共鸣，为什么③趋势热度判断：正在爆发期/上升期/跟风尾期/常青话题。如无明显趋势借势，如实说明",
   "commercialPurpose": "商业目的深挖，80-100字：结合该品牌当前发展阶段、用户生命周期和平台特性，分析这条内容的真实商业动机——具体目标是什么？为什么选择此时发布？背后可能面临的业务压力或正在抓住的市场机会是什么？不要用空泛词汇如'提升品牌认知'，要有具体推断",
-  "visualStrategy": "视觉策略解码，100-120字：分析视觉风格选择背后的决策逻辑——①色彩选择的心理效应（分别对儿童和家长产生什么作用）②构图和角色呈现方式服务于什么意图③与该品牌整体视觉系统的关系（一致/差异化测试）④这些视觉决策如何直接服务于商业目标",
+  "visualStrategy": "视觉策略解码，150-180字：分析视觉风格选择背后的决策逻辑——①色彩选择的心理效应（分别对儿童和家长产生什么作用）②构图和角色呈现方式服务于什么意图③与该品牌整体视觉系统的关系（一致/差异化测试）④这些视觉决策如何直接服务于商业目标⑤从视觉艺术和设计语言角度深度解析——具体构图手法（如放射形构图、三角构图、对角线引导）、色彩对比与搭配关系（如深背景+高饱和前景如何突出中心视觉）、画面层次与空间感营造、字体与图形的呼应关系、光效/质感/纹理的运用目的，每个点结合画面中的具体元素说明",
   "emotionalTone": "一句话：内容在目标用户（儿童/家长/两者）心中试图建立什么具体的情感联结，避免模糊表达",
   "targetAudience": "具体受众：年龄段+身份（儿童/家长/两者）+主要国家/地区+典型使用场景+核心欲望或痛点",
   "engagementInsight": "${engagementGuide}",
   "tags": ["3-5个精准关键词标签"],
   "strategicInsight": "核心战略洞察，100-120字：这条内容在该品牌整体营销矩阵中扮演什么具体角色？揭示其市场卡位意图或用户心理操控逻辑。是否发现新方向测试或竞争压力信号？请给出有具体依据的判断，不接受泛泛而谈",
-  "ahaRecommendations": "对 AHA World 的启示，120-150字：①哪些手法可以直接借鉴——说明具体怎么用到 AHA World 的内容制作中②哪些需要本地化改造——说明为什么需要改造及改造方向③作为视觉设计师，有哪些可以立即执行的具体动作",
+  "ahaRecommendations": "对 AHA World 的启示，120-150字：①哪些手法可以直接借鉴——说明具体怎么用到 AHA World 的内容制作中②哪些需要本地化改造——说明为什么需要改造及改造方向③作为视觉设计师，有哪些可以立即执行的具体动作",${xiaohongshuField}
   "marketingIntensity": 营销力度整数1-5，${intensityGuide}，1=日常维护性低成本内容，2=有制作投入的常规发布，3=明显推广节奏规划，4=高规格重点推广，5=资源集中的战役级投放,
   "marketingIntensityReason": "一句话说明评分依据"
 }`;
@@ -1883,6 +1965,7 @@ function renderAll() {
   renderMgr('platform');
   loadSettingsToForm();
   populatePlatformFilters();
+  populateBrandFilters();
 }
 
 function renderStats() {
@@ -1910,7 +1993,7 @@ function renderLibrary() {
   const opts = {
     search:   document.getElementById('fb-search').value,
     platform: document.getElementById('fb-platform').value,
-    brand:    document.getElementById('fb-brand').value,
+    brand:    _fbBrand,
     from:     document.getElementById('fb-from').value,
     to:       document.getElementById('fb-to').value,
     analyzed: document.getElementById('fb-analyzed').value,
@@ -1928,7 +2011,13 @@ function renderLibrary() {
     const contentImgs = (e.contentImages && e.contentImages.length) ? e.contentImages : (e.imageBase64||e.imageUrl ? [e.imageBase64||e.imageUrl] : []);
     const coverImg = contentImgs[0] || '';
     const imgCount = contentImgs.length;
-    return `<div class="content-card" onclick="openModal('${e.id}')">
+    const isSel = batchSelected.has(e.id);
+    const cardClass = `content-card${batchMode?' batch-mode':''}${isSel?' batch-selected':''}`;
+    const cardClick = batchMode
+      ? `toggleBatchSelect('${e.id}',event)`
+      : `openModal('${e.id}')`;
+    return `<div class="${cardClass}" data-id="${e.id}" onclick="${cardClick}">
+      ${batchMode?`<div class="cc-checkbox">${isSel?'✓':''}</div>`:''}
       <div class="cc-header">
         <div class="cc-brand">${escHtml(e.brand)}</div>
         <div class="cc-date">${e.date}</div>
@@ -1945,10 +2034,10 @@ function renderLibrary() {
       ${allTags.length?`<div class="cc-tags">${allTags.map(t=>`<span class="tag tag-default">${escHtml(t)}</span>`).join('')}</div>`:''}
       <div class="cc-footer">
         ${e.link?`<a class="cc-link" href="${escAttr(e.link)}" target="_blank" onclick="event.stopPropagation()">🔗 查看原内容</a>`:'<span></span>'}
-        <div style="display:flex;align-items:center;gap:8px">
+        ${batchMode?`<span style="font-size:11px;color:var(--text-l)">${isSel?'✅ 已选中':'点击选中'}</span>`:`<div style="display:flex;align-items:center;gap:8px">
           <button class="cc-eng-btn" onclick="event.stopPropagation();openEngPanel('${e.id}')">📊 更新互动数据</button>
           ${e.analysis?`<span class="analyzed-badge">✅ 已分析</span>`:`<span style="font-size:11px;color:var(--text-l)">未分析</span>`}
-        </div>
+        </div>`}
       </div>
     </div>`;
   }).join('');
@@ -2014,6 +2103,19 @@ function renderRecent() {
     </div>`).join('');
 }
 
+// Format analysis text: bold markdown + circled-number line breaks
+function formatAnalysisText(s) {
+  if (!s) return '';
+  // 1. HTML-escape first — only escapes & < > " ', NOT asterisks
+  let t = escHtml(s);
+  // 2. **bold** → <strong>bold</strong>
+  //    Use [\s\S]*? instead of .*? so it matches across newlines too
+  t = t.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
+  // 3. Line-break before ②③④⑤ (①starts the paragraph, no break before it)
+  t = t.replace(/([②③④⑤])/g, '<br>$1');
+  return t;
+}
+
 function renderAnalysisHTML(analysis) {
   if (!analysis) return '';
   const mint = analysis.marketingIntensity || analysis.threatLevel || 0;
@@ -2029,18 +2131,19 @@ function renderAnalysisHTML(analysis) {
       ${analysis.emotionalTone?`<span class="tag tag-purple">💭 ${escHtml(analysis.emotionalTone)}</span>`:''}
       ${mint?`<span class="mint ${MINT_CLASS[mint]}">📊 ${MINT_LABEL[mint]} ${mint}/5${analysis.marketingIntensityReason?' · '+escHtml(analysis.marketingIntensityReason):''}</span>`:''}
     </div>
-    ${analysis.culturalContext?`<div class="cultural-box"><div style="font-size:11px;font-weight:700;color:#0050A0;margin-bottom:6px;text-transform:uppercase">🌍 文化背景解读</div><p>${escHtml(analysis.culturalContext)}</p></div>`:''}
-    ${analysis.trendSignal?`<div class="trend-box"><div style="font-size:11px;font-weight:700;color:#A0105A;margin-bottom:6px;text-transform:uppercase">📈 流行趋势判断</div><p>${escHtml(analysis.trendSignal)}</p></div>`:''}
+    ${analysis.culturalContext?`<div class="cultural-box"><div style="font-size:11px;font-weight:700;color:#0050A0;margin-bottom:6px;text-transform:uppercase">🌍 文化背景解读</div><p>${formatAnalysisText(analysis.culturalContext)}</p></div>`:''}
+    ${analysis.trendSignal?`<div class="trend-box"><div style="font-size:11px;font-weight:700;color:#A0105A;margin-bottom:6px;text-transform:uppercase">📈 流行趋势判断</div><p>${formatAnalysisText(analysis.trendSignal)}</p></div>`:''}
     ${analysis.commercialPurpose?(cpIsArray
       ?`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:6px;text-transform:uppercase">商业目的</div><div style="display:flex;flex-wrap:wrap;gap:5px">${analysis.commercialPurpose.map(p=>`<span class="tag tag-yellow">${escHtml(p)}</span>`).join('')}</div></div>`
-      :`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:4px;text-transform:uppercase">💼 商业目的深挖</div><div style="font-size:13px;color:var(--text);line-height:1.65">${escHtml(analysis.commercialPurpose)}</div></div>`)
+      :`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:4px;text-transform:uppercase">💼 商业目的深挖</div><div style="font-size:13px;color:var(--text);line-height:1.75">${formatAnalysisText(analysis.commercialPurpose)}</div></div>`)
     :''}
-    ${analysis.targetAudience?`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:4px;text-transform:uppercase">目标受众</div><div style="font-size:13px;color:var(--text);line-height:1.65">${escHtml(analysis.targetAudience)}</div></div>`:''}
-    ${analysis.visualStrategy?`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:4px;text-transform:uppercase">🎨 视觉策略解码</div><div style="font-size:13px;color:var(--text);line-height:1.65">${escHtml(analysis.visualStrategy)}</div></div>`:''}
-    ${analysis.engagementInsight?`<div class="engagement-box"><div style="font-size:11px;font-weight:700;color:#8C3010;margin-bottom:6px;text-transform:uppercase">💬 传播力洞察</div><p>${escHtml(analysis.engagementInsight)}</p></div>`:''}
+    ${analysis.targetAudience?`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:4px;text-transform:uppercase">目标受众</div><div style="font-size:13px;color:var(--text);line-height:1.75">${formatAnalysisText(analysis.targetAudience)}</div></div>`:''}
+    ${analysis.visualStrategy?`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:4px;text-transform:uppercase">🎨 视觉策略解码</div><div style="font-size:13px;color:var(--text);line-height:1.75">${formatAnalysisText(analysis.visualStrategy)}</div></div>`:''}
+    ${analysis.engagementInsight?`<div class="engagement-box"><div style="font-size:11px;font-weight:700;color:#8C3010;margin-bottom:6px;text-transform:uppercase">💬 传播力洞察</div><p>${formatAnalysisText(analysis.engagementInsight)}</p></div>`:''}
+    ${analysis.xiaohongshuInsight?`<div style="margin-bottom:12px;background:rgba(255,50,80,0.07);border:1.5px solid rgba(255,50,80,0.18);border-radius:12px;padding:14px 16px"><div style="font-size:11px;font-weight:700;color:#C01030;margin-bottom:6px;text-transform:uppercase">📕 小红书专项分析</div><p style="font-size:13px;color:var(--text);line-height:1.75;margin:0">${formatAnalysisText(analysis.xiaohongshuInsight)}</p></div>`:''}
     ${analysis.tags?.length?`<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:6px;text-transform:uppercase">关键词标签</div><div style="display:flex;flex-wrap:wrap;gap:5px">${analysis.tags.map(t=>`<span class="tag tag-default">${escHtml(t)}</span>`).join('')}</div></div>`:''}
-    ${stratInsight?`<div class="insight-box"><div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:6px;text-transform:uppercase">💡 核心战略洞察</div><p>${escHtml(stratInsight)}</p></div>`:''}
-    ${ahaRec?`<div class="recommendation-box"><div style="font-size:11px;font-weight:700;color:#1A6020;margin-bottom:6px;text-transform:uppercase">🎯 AHA World 启示</div><p>${escHtml(ahaRec)}</p></div>`:''}
+    ${stratInsight?`<div class="insight-box"><div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:6px;text-transform:uppercase">💡 核心战略洞察</div><p>${formatAnalysisText(stratInsight)}</p></div>`:''}
+    ${ahaRec?`<div class="recommendation-box"><div style="font-size:11px;font-weight:700;color:#1A6020;margin-bottom:6px;text-transform:uppercase">🎯 AHA World 启示</div><p>${formatAnalysisText(ahaRec)}</p></div>`:''}
   </div>`;
 }
 
@@ -2179,7 +2282,7 @@ document.getElementById('nav').addEventListener('click', e => {
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
   item.classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
-  if (tab==='library')  { renderStats(); renderLibrary(); }
+  if (tab==='library')  { renderStats(); populateBrandFilters(); renderLibrary(); }
   if (tab==='timeline') renderTimeline();
   if (tab==='settings') { renderSettingsStats(); renderMgr('brand'); renderMgr('platform'); loadSettingsToForm(); }
 });
@@ -2204,10 +2307,12 @@ function toggleApiKeyVis() {
 }
 
 function clearFilters() {
-  ['fb-search','fb-brand','fb-from','fb-to'].forEach(id=>document.getElementById(id).value='');
+  ['fb-search','fb-from','fb-to'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fb-platform').value = '';
   document.getElementById('fb-analyzed').value = '';
   document.getElementById('fb-sort').value = 'date-desc';
+  _fbBrand = '';
+  populateBrandFilters();
   renderLibrary();
 }
 
@@ -2368,6 +2473,72 @@ async function saveEngPanel() {
 }
 
 // ================================================================
+// BATCH MANAGEMENT
+// ================================================================
+function enterBatchMode() {
+  batchMode = true;
+  batchSelected.clear();
+  const btn = document.getElementById('batchModeBtn');
+  if (btn) btn.style.display = 'none';
+  renderBatchBar();
+  renderLibrary();
+}
+
+function exitBatchMode() {
+  batchMode = false;
+  batchSelected.clear();
+  const bar = document.getElementById('batchBar');
+  if (bar) bar.classList.remove('open');
+  const btn = document.getElementById('batchModeBtn');
+  if (btn) btn.style.display = '';
+  renderLibrary();
+}
+
+function renderBatchBar() {
+  const bar = document.getElementById('batchBar');
+  if (!bar) return;
+  bar.classList.add('open');
+  const n = batchSelected.size;
+  bar.innerHTML = `
+    <span class="batch-count">已选 ${n} 条</span>
+    <button class="btn btn-danger btn-sm" onclick="deleteBatchSelected()" ${n===0?'disabled':''}>🗑 删除选中</button>
+    <button class="btn btn-ghost btn-sm" onclick="exitBatchMode()">取消</button>
+  `;
+}
+
+function toggleBatchSelect(id, event) {
+  event.stopPropagation();
+  if (batchSelected.has(id)) batchSelected.delete(id);
+  else batchSelected.add(id);
+  // update bar count without full re-render
+  renderBatchBar();
+  // toggle card class in-place
+  const card = document.querySelector(`.content-card[data-id="${id}"]`);
+  if (card) {
+    const sel = batchSelected.has(id);
+    card.classList.toggle('batch-selected', sel);
+    const cb = card.querySelector('.cc-checkbox');
+    if (cb) cb.textContent = sel ? '✓' : '';
+    const hint = card.querySelector('.cc-footer span:last-child');
+    if (hint && hint.style.fontSize) hint.textContent = sel ? '✅ 已选中' : '点击选中';
+  }
+}
+
+async function deleteBatchSelected() {
+  if (!batchSelected.size) return;
+  const count = batchSelected.size;
+  if (!confirm(`确定删除选中的 ${count} 条内容？此操作不可撤销。`)) return;
+  batchSelected.forEach(id => {
+    const idx = db.entries.findIndex(e => e.id === id);
+    if (idx >= 0) db.entries.splice(idx, 1);
+  });
+  saveToStorage();
+  showToast(`已删除 ${count} 条内容`, 'success');
+  exitBatchMode();
+  renderAll();
+}
+
+// ================================================================
 // INIT
 // ================================================================
 function init() {
@@ -2377,6 +2548,7 @@ function init() {
   document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
   renderContentImagesGrid();
   renderEngImagesGrid();
+  populateBrandFilters();
 
   // Paste handler
   document.addEventListener('paste', e => {
