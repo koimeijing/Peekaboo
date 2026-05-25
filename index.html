@@ -456,11 +456,26 @@
       border: 1px solid rgba(255,255,255,0.8);
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
-      padding:14px 18px; cursor:pointer; transition:all .2s;
+      cursor: pointer; transition: all .2s;
+      display: flex; align-items: stretch; overflow: hidden;
     }
     .tl-card:hover { box-shadow:var(--shadow-md); transform:translateX(4px); border-color:rgba(255,141,187,0.35) }
-    .tl-card-top { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap }
+    .tl-thumb {
+      width: 72px; min-width: 72px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .tl-thumb img { width:100%; height:100%; object-fit:cover; display:block }
+    .tl-thumb-ph {
+      width: 100%; height: 100%; min-height: 68px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 900; color: rgba(255,141,187,0.65);
+      background: linear-gradient(135deg, rgba(255,141,187,0.09), rgba(89,172,255,0.09));
+    }
+    .tl-info { flex:1; min-width:0; padding:12px 16px; display:flex; flex-direction:column; gap:4px }
+    .tl-info-top { display:flex; align-items:center; gap:7px; flex-wrap:wrap }
     .tl-brand { font-weight:800; font-size:14px }
+    .tl-info-date { font-size:11px; color:var(--text-l); margin-left:auto; white-space:nowrap; flex-shrink:0 }
     .tl-desc { font-size:12px; color:var(--text-m); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
 
     /* ── Modal ──────────────────────────────────────── */
@@ -793,6 +808,7 @@
       .timeline-wrap::before { left:74px }
       .tl-date-label { width:66px; font-size:11px }
       .tl-items { margin-left:98px }
+      .tl-thumb { width:56px; min-width:56px }
       .info-grid { grid-template-columns:1fr }
     }
   </style>
@@ -1146,6 +1162,19 @@
   </div>
 </div>
 
+<!-- Import Conflict Dialog -->
+<div class="overlay" id="importConflictOverlay" style="display:none;z-index:900" onclick="event.stopPropagation()">
+  <div class="modal" style="max-width:460px;width:90%" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:800;margin-bottom:14px">⚠️ 发现重复内容</div>
+    <div id="importConflictBody"></div>
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn btn-secondary" onclick="resolveConflict('skip')">跳过</button>
+      <button class="btn btn-primary" onclick="resolveConflict('overwrite')">覆盖</button>
+      <button class="btn btn-secondary" style="border-color:var(--success);color:#1A8020" onclick="resolveConflict('keep-both')">两条都保留</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ================================================================
 // CONSTANTS
@@ -1190,6 +1219,7 @@ let lastPasteZone = 'content'; // tracks which image zone Ctrl+V should target
 let _fbBrand = '';             // selected brand pill in library filter
 let batchMode = false;
 let batchSelected = new Set();
+let _conflictResolve = null;
 const MAX_CONTENT_IMAGES = 9;
 const MAX_ENG_IMAGES = 9;
 
@@ -1245,22 +1275,75 @@ function exportJSON() {
   showToast('已导出 JSON 文件', 'success');
 }
 
+function showConflictDialog(incoming, existing) {
+  return new Promise(resolve => {
+    _conflictResolve = resolve;
+    const clip = s => escHtml((s || '').slice(0, 60) + ((s || '').length > 60 ? '…' : ''));
+    document.getElementById('importConflictBody').innerHTML = `
+      <div style="background:rgba(255,111,66,0.07);border:1px solid rgba(255,111,66,0.22);border-radius:12px;padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">现有数据</div>
+        <div style="font-weight:800;font-size:14px">${escHtml(existing.brand)}</div>
+        <div style="font-size:12px;color:var(--text-m);margin-top:2px">${existing.date} · ${escHtml(existing.platform)}</div>
+        <div style="font-size:12px;color:var(--text-m);margin-top:5px">${clip(existing.description)}</div>
+      </div>
+      <div style="background:rgba(89,172,255,0.07);border:1px solid rgba(89,172,255,0.22);border-radius:12px;padding:12px 14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text-m);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">导入数据</div>
+        <div style="font-weight:800;font-size:14px">${escHtml(incoming.brand)}</div>
+        <div style="font-size:12px;color:var(--text-m);margin-top:2px">${incoming.date} · ${escHtml(incoming.platform)}</div>
+        <div style="font-size:12px;color:var(--text-m);margin-top:5px">${clip(incoming.description)}</div>
+      </div>`;
+    document.getElementById('importConflictOverlay').style.display = 'flex';
+  });
+}
+
+function resolveConflict(choice) {
+  document.getElementById('importConflictOverlay').style.display = 'none';
+  if (_conflictResolve) { _conflictResolve(choice); _conflictResolve = null; }
+}
+
 function importJSON(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
       const p = JSON.parse(e.target.result);
-      if (p.entries && Array.isArray(p.entries)) {
-        const existing = new Set(db.entries.map(x => x.id));
-        const newE = p.entries.filter(x => !existing.has(x.id));
-        db.entries = [...db.entries, ...newE];
-        if (p.settings) db.settings = { ...db.settings, ...p.settings };
-        saveToStorage();
-        renderAll();
-        showToast(`已导入 ${newE.length} 条内容`, 'success');
-      } else { showToast('JSON 格式不正确', 'error'); }
+      if (!p.entries || !Array.isArray(p.entries)) { showToast('JSON 格式不正确', 'error'); return; }
+      if (p.settings) db.settings = { ...db.settings, ...p.settings };
+
+      let added = 0, skipped = 0, overwritten = 0, keptBoth = 0;
+
+      for (const incoming of p.entries) {
+        const dupIdx = db.entries.findIndex(ex =>
+          ex.id === incoming.id ||
+          (ex.link && incoming.link && ex.link === incoming.link &&
+           ex.date === incoming.date && ex.brand === incoming.brand)
+        );
+        if (dupIdx === -1) {
+          db.entries.push(incoming);
+          added++;
+        } else {
+          const choice = await showConflictDialog(incoming, db.entries[dupIdx]);
+          if (choice === 'skip') {
+            skipped++;
+          } else if (choice === 'overwrite') {
+            db.entries[dupIdx] = incoming;
+            overwritten++;
+          } else {
+            db.entries.push({ ...incoming, id: 'kb_' + Date.now() + '_' + Math.random().toString(36).slice(2,8) });
+            keptBoth++;
+          }
+        }
+      }
+
+      saveToStorage();
+      renderAll();
+      const parts = [];
+      if (added)      parts.push(`新增 ${added} 条`);
+      if (overwritten) parts.push(`覆盖 ${overwritten} 条`);
+      if (keptBoth)   parts.push(`两条都保留 ${keptBoth} 条`);
+      if (skipped)    parts.push(`跳过 ${skipped} 条`);
+      showToast('导入完成：' + (parts.join('、') || '无变更'), 'success');
     } catch (err) { showToast('解析失败: ' + err.message, 'error'); }
     event.target.value = '';
   };
@@ -1729,11 +1812,7 @@ function buildPrompt(entry) {
     ? `（已附内容截图${contentImages.length > 1 ? ' '+contentImages.length+'张' : ''}，请结合图片进行视觉策略分析）`
     : '';
 
-  const engagementGuide = hasEngImg
-    ? `已提供互动数据截图，请先从图片中准确读取各项互动数字，然后判断：①各项数据绝对量是否优于该品牌同类内容基准？②评论/点赞/转发/收藏的比例结构说明了什么用户行为特点？③整体传播力评价`
-    : hasEngText
-      ? `已提供互动数据「${entry.engagement}」，请判断：①数据量是否优于该品牌同类内容基准？②各指标比例结构说明了什么用户行为特点？③整体传播力评价`
-      : `未提供互动数据——请在此字段明确说明"未提供互动数据，无法进行数据分析"，可做内容传播潜力的定性判断，但严禁估算任何具体数字`;
+  const engagementGuide = `传播力洞察：如果用户提供了互动数据截图，你必须直接从图片中读取具体数字并进行分析，不要要求用户再次提供数据。分析时：①直接说出你读取到的具体数字（点赞/评论/收藏/转发/播放量等）②结合该平台的同类内容均值判断这些数字的表现水平（高/中/低）③评论/点赞/收藏的比例结构说明了什么用户行为特点④给出整体传播力评价。如果确实没有提供任何互动数据，则明确说明"未提供互动数据"，不得编造数字。`;
   const intensityGuide = (hasEngImg || hasEngText)
     ? `结合内容制作规格与互动数据综合评定，请在 marketingIntensity 之后用一句话说明评分依据`
     : `根据内容制作规格、发布策略和平台分发逻辑评定，请在 marketingIntensity 之后用一句话说明评分依据`;
@@ -2066,19 +2145,22 @@ function renderTimeline() {
       <div class="tl-items">
         ${items.map(e => {
           const mint = e.analysis?.marketingIntensity||e.analysis?.threatLevel||0;
+          const thumb = e.contentImages?.[0] || e.imageBase64 || e.imageUrl || '';
+          const initial = escHtml((e.brand||'?').charAt(0).toUpperCase());
           return `<div class="tl-card" onclick="openModal('${e.id}')">
-            <div class="tl-card-top">
-              <span class="tl-brand">${escHtml(e.brand)}</span>
-              <span class="tag tag-blue">${escHtml(e.platform)}</span>
-              ${e.analysis?.contentType?`<span class="tag tag-green">${escHtml(e.analysis.contentType)}</span>`:''}
-              ${mint?`<span class="mint ${MINT_CLASS[mint]}">📊 ${MINT_LABEL[mint]}</span>`:''}
-              ${e.analysis?'<span class="analyzed-badge">✅</span>':''}
+            <div class="tl-thumb">${thumb
+              ? `<img src="${thumb}" alt="">`
+              : `<div class="tl-thumb-ph">${initial}</div>`}</div>
+            <div class="tl-info">
+              <div class="tl-info-top">
+                <span class="tl-brand">${escHtml(e.brand)}</span>
+                <span class="tag tag-blue">${escHtml(e.platform)}</span>
+                ${mint?`<span class="mint ${MINT_CLASS[mint]}">📊 ${MINT_LABEL[mint]}</span>`:''}
+                ${e.analysis?'<span class="analyzed-badge">✅</span>':''}
+                <span class="tl-info-date">${e.date}</span>
+              </div>
+              <div class="tl-desc">${escHtml(e.description)}</div>
             </div>
-            <div class="tl-desc">${escHtml(e.description)}</div>
-            ${(e.engagementImages?.length||e.engagementImageBase64)?`<div style="font-size:11px;color:var(--text-l);margin-top:5px">📊 含互动数据截图${e.engagementImages?.length>1?' ('+e.engagementImages.length+'张)':''}</div>`
-              :e.engagement?`<div style="font-size:11px;color:var(--text-l);margin-top:5px">💬 ${escHtml(e.engagement)}</div>`:''}
-            ${[...(e.manualTags||[]),...(e.analysis?.tags||[])].slice(0,4).length?
-              `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:7px">${[...(e.manualTags||[]),...(e.analysis?.tags||[])].slice(0,4).map(t=>`<span class="tag tag-default">${escHtml(t)}</span>`).join('')}</div>`:''}
           </div>`;
         }).join('')}
       </div>
