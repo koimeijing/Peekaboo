@@ -478,6 +478,29 @@
     .tl-info-date { font-size:11px; color:var(--text-l); margin-left:auto; white-space:nowrap; flex-shrink:0 }
     .tl-desc { font-size:12px; color:var(--text-m); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
 
+    /* ── Tracker ────────────────────────────────────── */
+    .tracker-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start }
+    .tracker-panel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px }
+    .tracker-list { display:flex; flex-direction:column; gap:10px; min-height:32px }
+    .tracker-card {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 14px;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.05);
+      padding: 14px 16px;
+    }
+    .tracker-card-name { font-weight:800; font-size:15px; margin-bottom:3px }
+    .tracker-card-url { font-size:11px; color:var(--text-l); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:6px; max-width:100% }
+    .tracker-card-meta { font-size:11.5px; color:var(--text-m); margin-bottom:10px; line-height:1.6 }
+    .tracker-card-actions { display:flex; gap:8px; align-items:center }
+    .tracker-inline-form {
+      background: rgba(255,255,255,0.5);
+      border: 1.5px dashed rgba(255,141,187,0.4); border-radius:12px;
+      padding: 14px; margin-top:12px;
+      display: flex; flex-direction:column; gap:8px;
+    }
+
     /* ── Modal ──────────────────────────────────────── */
     .overlay {
       position:fixed; inset:0; background:rgba(26,26,26,.62);
@@ -809,6 +832,7 @@
       .tl-date-label { width:66px; font-size:11px }
       .tl-items { margin-left:98px }
       .tl-thumb { width:56px; min-width:56px }
+      .tracker-grid { grid-template-columns:1fr }
       .info-grid { grid-template-columns:1fr }
     }
   </style>
@@ -839,6 +863,7 @@
 
 <nav class="nav" id="nav">
   <div class="nav-item active" data-tab="entry">✏️ 录入</div>
+  <div class="nav-item" data-tab="tracker">🏪 商店追踪</div>
   <div class="nav-item" data-tab="library">🗂 收藏库</div>
   <div class="nav-item" data-tab="timeline">📅 时间线</div>
   <div class="nav-item" data-tab="settings">⚙️ 设置</div>
@@ -1003,6 +1028,55 @@
       <input id="tl-brand" type="text" placeholder="品牌筛选" oninput="renderTimeline()">
     </div>
     <div class="timeline-wrap" id="timelineWrap"></div>
+  </div>
+
+  <!-- ===== TAB: 商店追踪 ===== -->
+  <div class="tab" id="tab-tracker">
+    <div style="margin-bottom:22px">
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">🏪 应用商店追踪</h2>
+      <p style="font-size:13px;color:var(--text-m)">自动追踪竞品版本更新，新版本自动存入收藏库</p>
+    </div>
+    <div class="tracker-grid">
+
+      <!-- App Store 面板 -->
+      <div class="card">
+        <div class="tracker-panel-head">
+          <span class="section-title" style="margin-bottom:0">🍎 App Store</span>
+          <button class="btn btn-secondary btn-sm" onclick="checkAllTrackers('appstore')">全部检查更新</button>
+        </div>
+        <div id="tracker-list-appstore" class="tracker-list"></div>
+        <div id="tracker-form-appstore" class="tracker-inline-form" style="display:none">
+          <input type="text" id="tracker-name-appstore" placeholder="品牌名，如 Toca Boca">
+          <input type="url"  id="tracker-url-appstore"  placeholder="粘贴 App Store 链接">
+          <div style="display:flex;gap:8px;margin-top:2px">
+            <button class="btn btn-primary btn-sm" onclick="addTracker('appstore')">添加</button>
+            <button class="btn btn-ghost btn-sm"   onclick="hideAddTrackerForm('appstore')">取消</button>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:14px;width:100%"
+                onclick="showAddTrackerForm('appstore')">+ 添加追踪目标</button>
+      </div>
+
+      <!-- Google Play 面板 -->
+      <div class="card">
+        <div class="tracker-panel-head">
+          <span class="section-title" style="margin-bottom:0">🤖 Google Play</span>
+          <button class="btn btn-secondary btn-sm" onclick="checkAllTrackers('googleplay')">全部检查更新</button>
+        </div>
+        <div id="tracker-list-googleplay" class="tracker-list"></div>
+        <div id="tracker-form-googleplay" class="tracker-inline-form" style="display:none">
+          <input type="text" id="tracker-name-googleplay" placeholder="品牌名，如 Toca Boca">
+          <input type="url"  id="tracker-url-googleplay"  placeholder="粘贴 Google Play 链接">
+          <div style="display:flex;gap:8px;margin-top:2px">
+            <button class="btn btn-primary btn-sm" onclick="addTracker('googleplay')">添加</button>
+            <button class="btn btn-ghost btn-sm"   onclick="hideAddTrackerForm('googleplay')">取消</button>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:14px;width:100%"
+                onclick="showAddTrackerForm('googleplay')">+ 添加追踪目标</button>
+      </div>
+
+    </div>
   </div>
 
   <!-- ===== TAB: 设置 ===== -->
@@ -1175,6 +1249,34 @@
   </div>
 </div>
 
+<!-- Tracker Manual Entry Modal -->
+<div class="overlay" id="trackerManualOverlay" style="display:none;z-index:910" onclick="event.stopPropagation()">
+  <div class="modal" style="max-width:480px;width:92%" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:800;margin-bottom:6px">📋 手动录入更新内容</div>
+    <p style="font-size:13px;color:var(--text-m);margin-bottom:16px">自动抓取失败，请前往商店页面手动复制更新内容</p>
+    <a id="trackerManualStoreLink" href="#" target="_blank" rel="noopener"
+       class="btn btn-secondary btn-sm" style="margin-bottom:18px;display:inline-flex">前往商店页面 ↗</a>
+    <div class="form-grid" style="margin-bottom:14px">
+      <div class="fg">
+        <label>版本号</label>
+        <input type="text" id="tm-version" placeholder="如 2.6.1">
+      </div>
+      <div class="fg">
+        <label>更新日期</label>
+        <input type="date" id="tm-date">
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:18px">
+      <label>What's New 更新日志</label>
+      <textarea id="tm-whats-new" rows="5" placeholder="粘贴更新日志内容"></textarea>
+    </div>
+    <div class="btn-row" style="margin-top:0">
+      <button class="btn btn-primary" onclick="saveTrackerManual()">保存</button>
+      <button class="btn btn-ghost"   onclick="closeTrackerManualModal()">取消</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ================================================================
 // CONSTANTS
@@ -1207,6 +1309,7 @@ const MINT_DESC  = '1=日常维护 · 3=常规推广 · 5=重点战役';
 // ================================================================
 let db = {
   entries: [],
+  trackers: [],
   settings: {
     apiKey: '', model: 'deepseek-chat', theme: 'light',
     brands: [...DEFAULT_BRANDS], platforms: [...DEFAULT_PLATFORMS]
@@ -1232,6 +1335,7 @@ function loadFromStorage() {
     if (raw) {
       const p = JSON.parse(raw);
       db.entries  = p.entries  || [];
+      db.trackers = p.trackers || [];
       db.settings = { ...db.settings, ...(p.settings || {}) };
     }
   } catch (e) { console.error('Load error:', e); }
@@ -2036,6 +2140,7 @@ function renderAll() {
   renderStats();
   renderLibrary();
   renderTimeline();
+  renderTracker();
   renderRecent();
   renderSettingsStats();
   renderTagSelector('brand');
@@ -2366,6 +2471,7 @@ document.getElementById('nav').addEventListener('click', e => {
   document.getElementById('tab-'+tab).classList.add('active');
   if (tab==='library')  { renderStats(); populateBrandFilters(); renderLibrary(); }
   if (tab==='timeline') renderTimeline();
+  if (tab==='tracker')  renderTracker();
   if (tab==='settings') { renderSettingsStats(); renderMgr('brand'); renderMgr('platform'); loadSettingsToForm(); }
 });
 
@@ -2618,6 +2724,236 @@ async function deleteBatchSelected() {
   showToast(`已删除 ${count} 条内容`, 'success');
   exitBatchMode();
   renderAll();
+}
+
+// ================================================================
+// TRACKER
+// ================================================================
+let _manualTrackerId = null;
+
+function openTrackerManualModal(id) {
+  console.log('openTrackerManualModal called:', id);
+  _manualTrackerId = id;
+  const tracker = (db.trackers || []).find(t => t.id === id);
+  if (!tracker) return;
+  document.getElementById('trackerManualStoreLink').href = tracker.url;
+  document.getElementById('tm-version').value   = tracker.lastVersion || '';
+  document.getElementById('tm-date').value      = new Date().toISOString().slice(0, 10);
+  document.getElementById('tm-whats-new').value = '';
+  document.getElementById('trackerManualOverlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('tm-version').focus(), 50);
+}
+
+function closeTrackerManualModal() {
+  document.getElementById('trackerManualOverlay').style.display = 'none';
+  _manualTrackerId = null;
+}
+
+function saveTrackerManual() {
+  const tracker = (db.trackers || []).find(t => t.id === _manualTrackerId);
+  if (!tracker) return;
+  const version  = document.getElementById('tm-version').value.trim();
+  const date     = document.getElementById('tm-date').value;
+  const whatsNew = document.getElementById('tm-whats-new').value.trim();
+  if (!version) { showToast('请填写版本号', 'warning'); return; }
+  const now = new Date().toISOString();
+  db.entries.unshift({
+    id: 'manual_' + Date.now(),
+    brand: tracker.name,
+    platform: tracker.store === 'appstore' ? 'App Store' : 'Google Play',
+    date: date || now.slice(0, 10),
+    link: tracker.url,
+    description: whatsNew || `版本 ${version} 更新`,
+    contentImages: [], imageBase64: '',
+    engagementImages: [], engagementImageBase64: '',
+    manualTags: ['版本更新', tracker.name],
+    analysis: null, source: 'manual',
+    createdAt: now, updatedAt: now
+  });
+  tracker.lastVersion  = version;
+  tracker.lastChecked  = now;
+  tracker.lastUpdated  = date || now.slice(0, 10);
+  saveToStorage();
+  renderTrackerPanel(tracker.store);
+  closeTrackerManualModal();
+  showToast(`已手动录入版本 ${version}`, 'success');
+}
+
+function renderTracker() {
+  renderTrackerPanel('appstore');
+  renderTrackerPanel('googleplay');
+}
+
+function renderTrackerPanel(store) {
+  const list = document.getElementById('tracker-list-' + store);
+  if (!list) return;
+  const items = (db.trackers || []).filter(t => t.store === store);
+  if (!items.length) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--text-l);padding:12px 0;text-align:center">暂无追踪目标</div>';
+    return;
+  }
+  list.innerHTML = items.map(t => {
+    const checkedText = t.lastChecked
+      ? '上次检查：' + new Date(t.lastChecked).toLocaleString('zh-CN', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'})
+      : '从未检查';
+    const versionText = t.lastVersion ? `版本 ${t.lastVersion}` : '';
+    return `<div class="tracker-card" id="tcard-${t.id}">
+      <div class="tracker-card-name">${escHtml(t.name)}</div>
+      <div class="tracker-card-url" title="${escHtml(t.url)}">${escHtml(t.url)}</div>
+      <div class="tracker-card-meta">${checkedText}${versionText ? ' · ' + versionText : ''}</div>
+      <div class="tracker-card-actions">
+        <button class="btn btn-primary btn-sm" onclick="checkTracker('${t.id}')">检查更新</button>
+        <button class="btn btn-danger btn-sm"  onclick="deleteTracker('${t.id}')">删除</button>
+      </div>
+      <div id="tcard-status-${t.id}" style="font-size:12px;margin-top:8px;display:none"></div>
+    </div>`;
+  }).join('');
+}
+
+function showAddTrackerForm(store) {
+  document.getElementById('tracker-form-' + store).style.display = 'flex';
+  document.getElementById('tracker-name-' + store).focus();
+}
+
+function hideAddTrackerForm(store) {
+  document.getElementById('tracker-form-' + store).style.display = 'none';
+  document.getElementById('tracker-name-' + store).value = '';
+  document.getElementById('tracker-url-'  + store).value = '';
+}
+
+function addTracker(store) {
+  const name = document.getElementById('tracker-name-' + store).value.trim();
+  const url  = document.getElementById('tracker-url-'  + store).value.trim();
+  if (!name || !url) { showToast('品牌名和链接不能为空', 'warning'); return; }
+  if (!db.trackers) db.trackers = [];
+  db.trackers.push({ id: 'tr_' + Date.now(), name, store, url, lastChecked: null, lastVersion: null, lastUpdated: null });
+  saveToStorage();
+  hideAddTrackerForm(store);
+  renderTrackerPanel(store);
+  showToast('追踪目标已添加', 'success');
+}
+
+function deleteTracker(id) {
+  if (!confirm('确定删除这个追踪目标？')) return;
+  db.trackers = (db.trackers || []).filter(t => t.id !== id);
+  saveToStorage();
+  renderTracker();
+  showToast('已删除', 'success');
+}
+
+async function fetchWithProxy(url) {
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    `https://thingproxy.freeboard.io/fetch/${url}`,
+  ];
+  for (const proxyUrl of proxies) {
+    try {
+      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+      if (!resp.ok) continue;
+      const html = await resp.text();
+      if (html.length > 500) return html;
+    } catch(e) {
+      continue;
+    }
+  }
+  throw new Error('所有代理均无法访问，请检查网络或稍后重试');
+}
+
+async function checkTracker(id) {
+  const tracker = (db.trackers || []).find(t => t.id === id);
+  if (!tracker) return;
+
+  const statusEl = document.getElementById('tcard-status-' + id);
+  const btn = document.querySelector(`#tcard-${id} .btn-primary`);
+  if (btn) { btn.disabled = true; btn.textContent = '检查中…'; }
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.style.color = 'var(--text-m)'; statusEl.textContent = '正在获取页面…'; }
+
+  try {
+    const html = await fetchWithProxy(tracker.url);
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    let version = null, updateDate = null, whatsNew = '', images = [];
+
+    if (tracker.store === 'appstore') {
+      const verMatch = html.match(/Version\s+([\d]+\.[\d]+(?:\.[\d]+)*)/i);
+      if (verMatch) version = verMatch[1];
+      const dateMatch = html.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s+\d{4}\b/);
+      if (dateMatch) updateDate = dateMatch[0];
+      const wnEl = doc.querySelector('[class*="whats-new"]') || doc.querySelector('[data-test-id="whats-new"]');
+      if (wnEl) whatsNew = wnEl.textContent.trim();
+      if (!whatsNew) {
+        const wnMatch = html.match(/what.{0,5}s new[\s\S]{0,80}?<[^>]+>([\s\S]{10,600}?)<\/[a-z]+>/i);
+        if (wnMatch) whatsNew = wnMatch[1].replace(/<[^>]+>/g, '').trim();
+      }
+      const iconEl = doc.querySelector('picture source[srcset]') || doc.querySelector('img[class*="artwork"]') || doc.querySelector('img[class*="product-art"]');
+      if (iconEl) {
+        const src = (iconEl.getAttribute('srcset') || iconEl.getAttribute('src') || '').split(',')[0].trim().split(' ')[0];
+        if (src) images = [src];
+      }
+    } else {
+      const verMatch = html.match(/Current Version[\s\S]{0,200}?([\d]+\.[\d]+(?:\.[\d]+)*)/i)
+        || html.match(/"softwareVersion":"([\d.]+)"/);
+      if (verMatch) version = verMatch[1];
+      const dateMatch = html.match(/Updated[\s\S]{0,100}?(\w+ \d{1,2}, \d{4})/i)
+        || html.match(/(\w+ \d{1,2}, \d{4})/);
+      if (dateMatch) updateDate = dateMatch[1];
+      const wnEl = doc.querySelector('[data-g-id="description"]') || doc.querySelector('[itemprop="description"]');
+      if (wnEl) whatsNew = wnEl.textContent.trim().slice(0, 800);
+      const imgMatches = [...html.matchAll(/https:\/\/play-lh\.googleusercontent\.com\/[^\s"'<>]+/g)].map(m => m[0]);
+      images = [...new Set(imgMatches)].slice(0, 3);
+    }
+
+    const now = new Date().toISOString();
+    tracker.lastChecked = now;
+
+    if (version && version !== tracker.lastVersion) {
+      const today = now.slice(0, 10);
+      db.entries.unshift({
+        id: 'auto_' + Date.now(),
+        brand: tracker.name,
+        platform: tracker.store === 'appstore' ? 'App Store' : 'Google Play',
+        date: today,
+        link: tracker.url,
+        description: whatsNew || `版本 ${version} 更新`,
+        contentImages: images,
+        imageBase64: images[0] || '',
+        engagementImages: [], engagementImageBase64: '',
+        manualTags: ['版本更新', tracker.name],
+        analysis: null,
+        source: 'auto',
+        createdAt: now, updatedAt: now
+      });
+      tracker.lastVersion = version;
+      tracker.lastUpdated = updateDate || today;
+      saveToStorage();
+      renderTrackerPanel(tracker.store);
+      showToast(`🎉 发现新版本 ${version}，已自动存入收藏库`, 'success');
+      if (statusEl) { statusEl.style.color = '#1A8020'; statusEl.textContent = `✅ 新版本 ${version} 已存入收藏库`; }
+    } else {
+      saveToStorage();
+      renderTrackerPanel(tracker.store);
+      const msg = version ? `暂无新版本（当前 ${version}）` : '未能解析版本号，请确认链接是否正确';
+      showToast(msg, 'info');
+      if (statusEl) { statusEl.style.color = 'var(--text-m)'; statusEl.textContent = msg; }
+    }
+  } catch (err) {
+    console.error('checkTracker error:', err);
+    if (statusEl) statusEl.style.display = 'none';
+    if (btn) { btn.disabled = false; btn.textContent = '检查更新'; }
+    openTrackerManualModal(id);
+  }
+}
+
+async function checkAllTrackers(store) {
+  const items = (db.trackers || []).filter(t => t.store === store);
+  if (!items.length) { showToast('暂无追踪目标', 'warning'); return; }
+  showToast(`开始检查 ${items.length} 个追踪目标…`, 'info');
+  for (const t of items) await checkTracker(t.id);
+  showToast('全部检查完毕', 'success');
 }
 
 // ================================================================
